@@ -1,9 +1,11 @@
+import MainLayout from './layouts/MainLayout';
+import Dashboard from './pages/Dashboard';
+
 function App() {
   return (
-    <div>
-      <h1>KrishiBandhu</h1>
-      <p>Smart farming platform</p>
-    </div>
+    <MainLayout>
+      <Dashboard />
+    </MainLayout>
   );
 }
 

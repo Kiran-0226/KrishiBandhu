@@ -1,0 +1,96 @@
+.dashboard-card {
+  min-height: 190px;
+
+  padding: 20px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-sm);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-3px);
+
+  border-color: #d5e1da;
+
+  box-shadow: var(--shadow-md);
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-icon {
+  width: 42px;
+  height: 42px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 11px;
+
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.card-action {
+  border: none;
+
+  background: transparent;
+
+  color: var(--primary);
+
+  font-size: 12px;
+  font-weight: 600;
+
+  padding: 5px 7px;
+
+  border-radius: 7px;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.card-action:hover {
+  background: var(--primary-light);
+}
+
+.dashboard-card h3 {
+  margin-top: 16px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: var(--text-secondary);
+}
+
+.card-value {
+  margin-top: 4px;
+
+  font-size: 25px;
+  line-height: 1.2;
+
+  font-weight: 700;
+
+  color: var(--text-primary);
+}
+
+.dashboard-card p {
+  margin-top: 6px;
+
+  font-size: 12px;
+  line-height: 1.5;
+
+  color: var(--text-muted);
+}
