@@ -4,33 +4,78 @@ import AddMarketForm from '../components/AddMarketForm';
 import './Market.css';
 
 function Market() {
+  const [activeTab, setActiveTab] = useState('markets');
+
   const [markets, setMarkets] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [loadingMarkets, setLoadingMarkets] = useState(true);
+  const [marketError, setMarketError] = useState('');
 
-  const [search, setSearch] = useState('');
-  const [selectedDistrict, setSelectedDistrict] =
-    useState('All');
+  const [marketPrices, setMarketPrices] = useState([]);
+  const [loadingPrices, setLoadingPrices] = useState(true);
+  const [priceError, setPriceError] = useState('');
 
-  const [showAddMarketForm, setShowAddMarketForm] =
-    useState(false);
+  const [marketSearch, setMarketSearch] = useState('');
+  const [priceSearch, setPriceSearch] = useState('');
 
-  // =========================================
-  // Fetch Markets
-  // =========================================
+  const [selectedDistrict, setSelectedDistrict] = useState('All');
+  const [selectedCommodity, setSelectedCommodity] = useState('All');
+  const [selectedMarket, setSelectedMarket] = useState('All');
+
+  const [showAddMarketForm, setShowAddMarketForm] = useState(false);
+
+  /* =========================================
+     Fetch Markets
+  ========================================= */
 
   const fetchMarkets = async () => {
     try {
-      setLoading(true);
-      setError('');
+      setLoadingMarkets(true);
+      setMarketError('');
 
       const response = await fetch(
         'http://localhost:5000/api/markets'
       );
 
       if (!response.ok) {
+        throw new Error('Failed to fetch markets.');
+      }
+
+      const result = await response.json();
+
+      if (!result.success) {
         throw new Error(
-          'Failed to fetch markets.'
+          result.message || 'Failed to fetch markets.'
+        );
+      }
+
+      setMarkets(result.data);
+    } catch (error) {
+      console.error('Fetch markets error:', error);
+
+      setMarketError(
+        error.message || 'Unable to load markets.'
+      );
+    } finally {
+      setLoadingMarkets(false);
+    }
+  };
+
+  /* =========================================
+     Fetch Market Prices
+  ========================================= */
+
+  const fetchMarketPrices = async () => {
+    try {
+      setLoadingPrices(true);
+      setPriceError('');
+
+      const response = await fetch(
+        'http://localhost:5000/api/market-prices'
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          'Failed to fetch market prices.'
         );
       }
 
@@ -38,55 +83,91 @@ function Market() {
 
       if (!result.success) {
         throw new Error(
-          result.message ||
-            'Failed to fetch markets.'
+          result.message || 'Failed to fetch market prices.'
         );
       }
 
-      setMarkets(result.data);
-    } catch (err) {
+      setMarketPrices(result.data);
+    } catch (error) {
       console.error(
-        'Fetch markets error:',
-        err
+        'Fetch market prices error:',
+        error
       );
 
-      setError(
-        err.message ||
-          'Unable to load markets.'
+      setPriceError(
+        error.message ||
+          'Unable to load market prices.'
       );
     } finally {
-      setLoading(false);
+      setLoadingPrices(false);
     }
   };
 
+  /* =========================================
+     Initial Load
+  ========================================= */
+
   useEffect(() => {
     fetchMarkets();
+    fetchMarketPrices();
   }, []);
 
-  // =========================================
-  // Unique Districts
-  // =========================================
+  /* =========================================
+     Districts
+  ========================================= */
 
   const districts = useMemo(() => {
     const uniqueDistricts = [
       ...new Set(
-        markets.map(
-          (market) => market.district
-        )
+        markets
+          .map((market) => market.district)
+          .filter(Boolean)
       ),
     ];
 
     return uniqueDistricts.sort();
   }, [markets]);
 
-  // =========================================
-  // Filter Markets
-  // =========================================
+  /* =========================================
+     Commodities
+  ========================================= */
+
+  const commodities = useMemo(() => {
+    const uniqueCommodities = [
+      ...new Set(
+        marketPrices
+          .map((price) => price.commodity)
+          .filter(Boolean)
+      ),
+    ];
+
+    return uniqueCommodities.sort();
+  }, [marketPrices]);
+
+  /* =========================================
+     Market Names
+  ========================================= */
+
+  const marketNames = useMemo(() => {
+    const uniqueMarkets = [
+      ...new Set(
+        marketPrices
+          .map((price) => price.market?.name)
+          .filter(Boolean)
+      ),
+    ];
+
+    return uniqueMarkets.sort();
+  }, [marketPrices]);
+
+  /* =========================================
+     Filter Markets
+  ========================================= */
 
   const filteredMarkets = useMemo(() => {
     return markets.filter((market) => {
       const searchText =
-        search.trim().toLowerCase();
+        marketSearch.trim().toLowerCase();
 
       const marketName =
         market.name?.toLowerCase() || '';
@@ -114,13 +195,71 @@ function Market() {
     });
   }, [
     markets,
-    search,
+    marketSearch,
     selectedDistrict,
   ]);
 
-  // =========================================
-  // Market Added
-  // =========================================
+  /* =========================================
+     Filter Prices
+  ========================================= */
+
+  const filteredPrices = useMemo(() => {
+    return marketPrices.filter((price) => {
+      const searchText =
+        priceSearch.trim().toLowerCase();
+
+      const marketName =
+        price.market?.name?.toLowerCase() || '';
+
+      const marketDistrict =
+        price.market?.district?.toLowerCase() || '';
+
+      const commodity =
+        price.commodity?.toLowerCase() || '';
+
+      const variety =
+        price.variety?.toLowerCase() || '';
+
+      const matchesSearch =
+        !searchText ||
+        commodity.includes(searchText) ||
+        marketName.includes(searchText) ||
+        marketDistrict.includes(searchText) ||
+        variety.includes(searchText);
+
+      const matchesDistrict =
+        selectedDistrict === 'All' ||
+        price.market?.district ===
+          selectedDistrict;
+
+      const matchesCommodity =
+        selectedCommodity === 'All' ||
+        price.commodity ===
+          selectedCommodity;
+
+      const matchesMarket =
+        selectedMarket === 'All' ||
+        price.market?.name ===
+          selectedMarket;
+
+      return (
+        matchesSearch &&
+        matchesDistrict &&
+        matchesCommodity &&
+        matchesMarket
+      );
+    });
+  }, [
+    marketPrices,
+    priceSearch,
+    selectedDistrict,
+    selectedCommodity,
+    selectedMarket,
+  ]);
+
+  /* =========================================
+     Add Market
+  ========================================= */
 
   const handleMarketAdded = (newMarket) => {
     setMarkets((previousMarkets) => [
@@ -131,24 +270,144 @@ function Market() {
     setShowAddMarketForm(false);
   };
 
-  // =========================================
-  // Render
-  // =========================================
+  /* =========================================
+     Format Price
+  ========================================= */
+
+  const formatPrice = (price) => {
+    if (
+      price === undefined ||
+      price === null
+    ) {
+      return '—';
+    }
+
+    return `₹${Number(price).toLocaleString(
+      'en-IN'
+    )}`;
+  };
+
+  /* =========================================
+     Format Date
+  ========================================= */
+
+  const formatDate = (date) => {
+    if (!date) {
+      return '—';
+    }
+
+    return new Date(date).toLocaleDateString(
+      'en-IN',
+      {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }
+    );
+  };
+
+  /* =========================================
+     Loading State
+  ========================================= */
+
+  const isLoading =
+    loadingMarkets || loadingPrices;
 
   return (
     <main className="dashboard">
       <PageHeader
-        title="Market Prices"
-        description="Explore agricultural markets across Maharashtra."
+        title="Market"
+        description="Explore agricultural markets and commodity prices across Maharashtra."
       />
 
       <div className="market-page-card">
 
         {/* =====================================
-            Add Market Form
-        ====================================== */}
+            Top Header
+        ===================================== */}
 
-        {showAddMarketForm ? (
+        <div className="market-page-header">
+          <div>
+            <h2>Market Information</h2>
+
+            <p>
+              Find Maharashtra markets and
+              latest agricultural prices.
+            </p>
+          </div>
+
+          {activeTab === 'markets' && (
+            <button
+              type="button"
+              className="add-market-button"
+              onClick={() =>
+                setShowAddMarketForm(true)
+              }
+            >
+              + Add Missing Market
+            </button>
+          )}
+        </div>
+
+        {/* =====================================
+            Tabs
+        ===================================== */}
+
+        <div className="market-tabs">
+          <button
+            type="button"
+            className={`market-tab ${
+              activeTab === 'markets'
+                ? 'active'
+                : ''
+            }`}
+            onClick={() => {
+              setActiveTab('markets');
+              setShowAddMarketForm(false);
+            }}
+          >
+            <span className="market-tab-icon">
+              🏪
+            </span>
+
+            <span>
+              <strong>Market Places</strong>
+              <small>
+                Explore agricultural markets
+              </small>
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className={`market-tab ${
+              activeTab === 'prices'
+                ? 'active'
+                : ''
+            }`}
+            onClick={() =>
+              setActiveTab('prices')
+            }
+          >
+            <span className="market-tab-icon">
+              🌾
+            </span>
+
+            <span>
+              <strong>Items & Prices</strong>
+              <small>
+                View latest commodity prices
+              </small>
+            </span>
+          </button>
+        </div>
+
+        {/* =====================================
+            Add Market Form
+        ===================================== */}
+
+        {activeTab === 'markets' &&
+        showAddMarketForm ? (
           <AddMarketForm
             onMarketAdded={handleMarketAdded}
             onCancel={() =>
@@ -157,214 +416,463 @@ function Market() {
           />
         ) : (
           <>
-            {/* =====================================
-                Market Header
-            ====================================== */}
+            {/* =================================
+                MARKET PLACES TAB
+            ================================= */}
 
-            <div className="market-page-header">
-              <div>
-                <h2>Markets</h2>
+            {activeTab === 'markets' && (
+              <section className="market-tab-content">
 
-                <p>
-                  Find agricultural markets
-                  across Maharashtra.
-                </p>
-              </div>
+                <div className="market-section-heading">
+                  <div>
+                    <h2>
+                      Maharashtra Markets
+                    </h2>
 
-              <button
-                type="button"
-                className="add-market-button"
-                onClick={() =>
-                  setShowAddMarketForm(true)
-                }
-              >
-                + Add Missing Market
-              </button>
-            </div>
-
-            {/* =====================================
-                Search & Filters
-            ====================================== */}
-
-            {!loading && !error && (
-              <div className="market-filters">
-
-                <div className="market-search">
-                  <label htmlFor="marketSearch">
-                    Search Market
-                  </label>
-
-                  <input
-                    id="marketSearch"
-                    type="text"
-                    placeholder="Search market or location..."
-                    value={search}
-                    onChange={(event) =>
-                      setSearch(
-                        event.target.value
-                      )
-                    }
-                  />
-                </div>
-
-                <div className="market-district-filter">
-                  <label htmlFor="districtFilter">
-                    District
-                  </label>
-
-                  <select
-                    id="districtFilter"
-                    value={selectedDistrict}
-                    onChange={(event) =>
-                      setSelectedDistrict(
-                        event.target.value
-                      )
-                    }
-                  >
-                    <option value="All">
-                      All Districts
-                    </option>
-
-                    {districts.map(
-                      (district) => (
-                        <option
-                          key={district}
-                          value={district}
-                        >
-                          {district}
-                        </option>
-                      )
-                    )}
-                  </select>
-                </div>
-
-              </div>
-            )}
-
-            {/* =====================================
-                Loading
-            ====================================== */}
-
-            {loading && (
-              <div className="market-message">
-                <p>
-                  Loading markets...
-                </p>
-              </div>
-            )}
-
-            {/* =====================================
-                Error
-            ====================================== */}
-
-            {error && (
-              <div className="market-message market-error">
-                <p>{error}</p>
-              </div>
-            )}
-
-            {/* =====================================
-                No Markets
-            ====================================== */}
-
-            {!loading &&
-              !error &&
-              markets.length === 0 && (
-                <div className="market-message">
-                  <p>
-                    No markets found.
-                  </p>
-                </div>
-              )}
-
-            {/* =====================================
-                No Filter Results
-            ====================================== */}
-
-            {!loading &&
-              !error &&
-              markets.length > 0 &&
-              filteredMarkets.length === 0 && (
-                <div className="market-message">
-                  <p>
-                    No markets match your
-                    search.
-                  </p>
-                </div>
-              )}
-
-            {/* =====================================
-                Market Results
-            ====================================== */}
-
-            {!loading &&
-              !error &&
-              filteredMarkets.length > 0 && (
-                <>
-                  <div className="market-results-info">
-                    Showing{' '}
-                    <strong>
-                      {filteredMarkets.length}
-                    </strong>{' '}
-                    of{' '}
-                    <strong>
-                      {markets.length}
-                    </strong>{' '}
-                    markets
+                    <p>
+                      Agricultural market places
+                      registered in KrishiBandhu.
+                    </p>
                   </div>
 
-                  <div className="market-list">
-                    {filteredMarkets.map(
-                      (market) => (
-                        <div
-                          className="market-card"
-                          key={market._id}
-                        >
-                          <div className="market-card-header">
-                            <div>
-                              <h2>
-                                {market.name}
-                              </h2>
+                  <span className="market-count-badge">
+                    {filteredMarkets.length}{' '}
+                    markets
+                  </span>
+                </div>
 
-                              <p>
-                                {market.location ||
-                                  market.district}
-                                , Maharashtra
-                              </p>
+                {!loadingMarkets &&
+                  !marketError && (
+                    <div className="market-filters market-place-filters">
+
+                      <div className="market-search">
+                        <label htmlFor="marketSearch">
+                          Search Markets
+                        </label>
+
+                        <input
+                          id="marketSearch"
+                          type="text"
+                          placeholder="Search market or district..."
+                          value={marketSearch}
+                          onChange={(event) =>
+                            setMarketSearch(
+                              event.target.value
+                            )
+                          }
+                        />
+                      </div>
+
+                      <div className="market-district-filter">
+                        <label htmlFor="districtFilter">
+                          District
+                        </label>
+
+                        <select
+                          id="districtFilter"
+                          value={selectedDistrict}
+                          onChange={(event) =>
+                            setSelectedDistrict(
+                              event.target.value
+                            )
+                          }
+                        >
+                          <option value="All">
+                            All Districts
+                          </option>
+
+                          {districts.map(
+                            (district) => (
+                              <option
+                                key={district}
+                                value={district}
+                              >
+                                {district}
+                              </option>
+                            )
+                          )}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                {loadingMarkets && (
+                  <div className="market-message">
+                    <p>
+                      Loading markets...
+                    </p>
+                  </div>
+                )}
+
+                {marketError && (
+                  <div className="market-message market-error">
+                    <p>{marketError}</p>
+                  </div>
+                )}
+
+                {!loadingMarkets &&
+                  !marketError &&
+                  filteredMarkets.length === 0 && (
+                    <div className="market-message">
+                      <p>
+                        No markets match your
+                        search.
+                      </p>
+                    </div>
+                  )}
+
+                {!loadingMarkets &&
+                  !marketError &&
+                  filteredMarkets.length > 0 && (
+                    <div className="market-list">
+                      {filteredMarkets.map(
+                        (market) => (
+                          <div
+                            className="market-card"
+                            key={market._id}
+                          >
+                            <div className="market-card-header">
+                              <div>
+                                <h2>
+                                  {market.name}
+                                </h2>
+
+                                <p>
+                                  {market.location ||
+                                    market.district}
+                                  , Maharashtra
+                                </p>
+                              </div>
+
+                              {market.isOfficial ? (
+                                <span className="official-badge">
+                                  ✓ Official
+                                </span>
+                              ) : (
+                                <span className="pending-badge">
+                                  Pending
+                                </span>
+                              )}
                             </div>
 
-                            {market.isOfficial && (
-                              <span className="official-badge">
-                                ✓ Official
+                            <div className="market-card-details">
+                              <span>
+                                📍{' '}
+                                {market.district}
                               </span>
-                            )}
 
-                            {!market.isOfficial && (
-                              <span className="pending-badge">
-                                Pending
+                              <span>
+                                🏪 {market.type}
                               </span>
-                            )}
+                            </div>
                           </div>
+                        )
+                      )}
+                    </div>
+                  )}
+              </section>
+            )}
 
-                          <div className="market-card-details">
-                            <span>
-                              📍{' '}
-                              {market.district}
-                            </span>
+            {/* =================================
+                ITEMS & PRICES TAB
+            ================================= */}
 
-                            <span>
-                              🏪 {market.type}
-                            </span>
-                          </div>
-                        </div>
-                      )
-                    )}
+            {activeTab === 'prices' && (
+              <section className="market-tab-content">
+
+                <div className="market-section-heading">
+                  <div>
+                    <h2>
+                      Commodity Prices
+                    </h2>
+
+                    <p>
+                      Latest available prices
+                      from official MSAMB data.
+                    </p>
                   </div>
-                </>
-              )}
+
+                  <span className="market-count-badge">
+                    {filteredPrices.length}{' '}
+                    records
+                  </span>
+                </div>
+
+                {!loadingPrices &&
+                  !priceError && (
+                    <div className="market-filters">
+
+                      <div className="market-search">
+                        <label htmlFor="priceSearch">
+                          Search Items
+                        </label>
+
+                        <input
+                          id="priceSearch"
+                          type="text"
+                          placeholder="Search commodity, variety or market..."
+                          value={priceSearch}
+                          onChange={(event) =>
+                            setPriceSearch(
+                              event.target.value
+                            )
+                          }
+                        />
+                      </div>
+
+                      <div className="market-district-filter">
+                        <label htmlFor="priceDistrictFilter">
+                          District
+                        </label>
+
+                        <select
+                          id="priceDistrictFilter"
+                          value={selectedDistrict}
+                          onChange={(event) =>
+                            setSelectedDistrict(
+                              event.target.value
+                            )
+                          }
+                        >
+                          <option value="All">
+                            All Districts
+                          </option>
+
+                          {districts.map(
+                            (district) => (
+                              <option
+                                key={district}
+                                value={district}
+                              >
+                                {district}
+                              </option>
+                            )
+                          )}
+                        </select>
+                      </div>
+
+                      <div className="market-commodity-filter">
+                        <label htmlFor="commodityFilter">
+                          Commodity
+                        </label>
+
+                        <select
+                          id="commodityFilter"
+                          value={selectedCommodity}
+                          onChange={(event) =>
+                            setSelectedCommodity(
+                              event.target.value
+                            )
+                          }
+                        >
+                          <option value="All">
+                            All Commodities
+                          </option>
+
+                          {commodities.map(
+                            (commodity) => (
+                              <option
+                                key={commodity}
+                                value={commodity}
+                              >
+                                {commodity}
+                              </option>
+                            )
+                          )}
+                        </select>
+                      </div>
+
+                      <div className="market-market-filter">
+                        <label htmlFor="marketFilter">
+                          Market
+                        </label>
+
+                        <select
+                          id="marketFilter"
+                          value={selectedMarket}
+                          onChange={(event) =>
+                            setSelectedMarket(
+                              event.target.value
+                            )
+                          }
+                        >
+                          <option value="All">
+                            All Markets
+                          </option>
+
+                          {marketNames.map(
+                            (marketName) => (
+                              <option
+                                key={marketName}
+                                value={marketName}
+                              >
+                                {marketName}
+                              </option>
+                            )
+                          )}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                {loadingPrices && (
+                  <div className="market-message">
+                    <p>
+                      Loading market prices...
+                    </p>
+                  </div>
+                )}
+
+                {priceError && (
+                  <div className="market-message market-error">
+                    <p>{priceError}</p>
+                  </div>
+                )}
+
+                {!loadingPrices &&
+                  !priceError && (
+                    <div className="market-results-info">
+                      Showing{' '}
+                      <strong>
+                        {filteredPrices.length}
+                      </strong>{' '}
+                      price records from{' '}
+                      <strong>
+                        {marketPrices.length}
+                      </strong>{' '}
+                      available records
+                    </div>
+                  )}
+
+                {!loadingPrices &&
+                  !priceError &&
+                  filteredPrices.length === 0 && (
+                    <div className="market-message">
+                      <p>
+                        No commodity prices match
+                        your filters.
+                      </p>
+                    </div>
+                  )}
+
+                {!loadingPrices &&
+                  !priceError &&
+                  filteredPrices.length > 0 && (
+                    <div className="market-price-list">
+                      {filteredPrices.map(
+                        (price) => (
+                          <div
+                            className="market-price-card"
+                            key={price._id}
+                          >
+                            <div className="market-price-card-header">
+                              <div>
+                                <h2>
+                                  {price.commodity}
+                                </h2>
+
+                                <p>
+                                  {price.market?.name}
+                                </p>
+                              </div>
+
+                              {price.market
+                                ?.isOfficial && (
+                                <span className="official-badge">
+                                  ✓ Official
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="market-price-location">
+                              📍{' '}
+                              {
+                                price.market
+                                  ?.district
+                              }
+                              , Maharashtra
+                            </div>
+
+                            {price.variety && (
+                              <div className="market-price-variety">
+                                Variety:{' '}
+                                <strong>
+                                  {price.variety}
+                                </strong>
+                              </div>
+                            )}
+
+                            <div className="market-price-grid">
+                              <div className="market-price-item">
+                                <span>
+                                  Minimum
+                                </span>
+
+                                <strong>
+                                  {formatPrice(
+                                    price.minimumPrice
+                                  )}
+                                </strong>
+                              </div>
+
+                              <div className="market-price-item market-price-modal">
+                                <span>
+                                  Modal
+                                </span>
+
+                                <strong>
+                                  {formatPrice(
+                                    price.modalPrice
+                                  )}
+                                </strong>
+                              </div>
+
+                              <div className="market-price-item">
+                                <span>
+                                  Maximum
+                                </span>
+
+                                <strong>
+                                  {formatPrice(
+                                    price.maximumPrice
+                                  )}
+                                </strong>
+                              </div>
+                            </div>
+
+                            <div className="market-price-footer">
+                              <span>
+                                📦 Arrival:{' '}
+                                {price.arrivalQuantity ??
+                                  '—'}{' '}
+                                {price.unit ||
+                                  'quintal'}
+                              </span>
+
+                              <span>
+                                📅{' '}
+                                {formatDate(
+                                  price.priceDate
+                                )}
+                              </span>
+                            </div>
+
+                            <div className="market-price-source">
+                              Source:{' '}
+                              <strong>
+                                {price.source ||
+                                  '—'}
+                              </strong>
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )}
+              </section>
+            )}
           </>
         )}
-
       </div>
     </main>
   );
