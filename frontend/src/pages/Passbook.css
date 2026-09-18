@@ -1,0 +1,665 @@
+.passbook-page {
+  position: relative;
+}
+
+/* Actions */
+
+.passbook-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.passbook-refresh-btn,
+.passbook-add-btn,
+.passbook-cancel-btn,
+.passbook-save-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.passbook-refresh-btn {
+  background: #ffffff;
+  color: #456052;
+  border: 1px solid #dbe7df;
+}
+
+.passbook-refresh-btn:hover {
+  background: #f5faf7;
+  transform: translateY(-1px);
+}
+
+.passbook-add-btn {
+  background: #2f7d4f;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(47, 125, 79, 0.18);
+}
+
+.passbook-add-btn:hover {
+  background: #286d44;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(47, 125, 79, 0.22);
+}
+
+.passbook-refresh-btn:disabled,
+.passbook-add-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Error */
+
+.passbook-error {
+  background: #fff2f2;
+  border: 1px solid #f2caca;
+  color: #b42318;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  font-size: 14px;
+}
+
+/* Summary */
+
+.passbook-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.passbook-summary-card {
+  background: #ffffff;
+  border: 1px solid #e4ece7;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 3px 12px rgba(25, 55, 38, 0.04);
+}
+
+.passbook-summary-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.passbook-summary-card.balance
+  .passbook-summary-icon {
+  background: #eaf5ee;
+  color: #2f7d4f;
+}
+
+.passbook-summary-card.income
+  .passbook-summary-icon {
+  background: #e9f7ef;
+  color: #23834a;
+}
+
+.passbook-summary-card.expense
+  .passbook-summary-icon {
+  background: #fff0ed;
+  color: #d3543c;
+}
+
+.passbook-summary-card span {
+  display: block;
+  color: #718078;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.passbook-summary-card strong {
+  display: block;
+  color: #20352a;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* History */
+
+.passbook-history-card {
+  background: #ffffff;
+  border: 1px solid #e4ece7;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(25, 55, 38, 0.04);
+}
+
+.passbook-history-header {
+  padding: 20px 22px;
+  border-bottom: 1px solid #edf2ef;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.passbook-history-header h2 {
+  margin: 0;
+  color: #20352a;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.passbook-history-header p {
+  margin: 5px 0 0;
+  color: #7a887f;
+  font-size: 13px;
+}
+
+/* Empty / Loading */
+
+.passbook-state {
+  min-height: 250px;
+  padding: 45px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #809087;
+}
+
+.passbook-state svg {
+  color: #5f9b76;
+  margin-bottom: 12px;
+}
+
+.passbook-state h3 {
+  margin: 5px 0;
+  color: #26392f;
+  font-size: 18px;
+}
+
+.passbook-state p {
+  margin: 4px 0 18px;
+  font-size: 14px;
+}
+
+.spin {
+  animation: passbook-spin 1s linear infinite;
+}
+
+@keyframes passbook-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Transaction list */
+
+.passbook-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.passbook-transaction {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 19px 22px;
+  border-bottom: 1px solid #edf2ef;
+  transition: background 0.2s ease;
+}
+
+.passbook-transaction:last-child {
+  border-bottom: none;
+}
+
+.passbook-transaction:hover {
+  background: #fbfdfb;
+}
+
+.transaction-type-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.transaction-type-icon.income {
+  background: #eaf7ef;
+  color: #27834b;
+}
+
+.transaction-type-icon.expense {
+  background: #fff0ed;
+  color: #d3543c;
+}
+
+.transaction-main {
+  min-width: 0;
+}
+
+.transaction-title-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.transaction-title-row h3 {
+  margin: 0;
+  color: #26392f;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.transaction-badge {
+  border-radius: 20px;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.transaction-badge.income {
+  background: #eaf7ef;
+  color: #27834b;
+}
+
+.transaction-badge.expense {
+  background: #fff0ed;
+  color: #d3543c;
+}
+
+.transaction-main > p {
+  margin: 5px 0 8px;
+  color: #718078;
+  font-size: 13px;
+}
+
+.transaction-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  color: #87938c;
+  font-size: 12px;
+}
+
+.transaction-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.transaction-amount {
+  min-width: 135px;
+  text-align: right;
+}
+
+.transaction-amount strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.transaction-amount strong.income {
+  color: #27834b;
+}
+
+.transaction-amount strong.expense {
+  color: #d3543c;
+}
+
+.transaction-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.transaction-actions button {
+  width: 31px;
+  height: 31px;
+  border: 1px solid #dce6e0;
+  background: #ffffff;
+  color: #66766d;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.transaction-actions button:hover {
+  background: #f0f7f3;
+  color: #2f7d4f;
+  border-color: #bdd8c6;
+}
+
+.transaction-actions button:last-child:hover {
+  background: #fff3f1;
+  color: #c64b39;
+  border-color: #efc4bd;
+}
+
+/* Modal */
+
+.passbook-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(22, 38, 29, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+}
+
+.passbook-modal {
+  width: min(520px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(17, 35, 24, 0.2);
+}
+
+.passbook-modal-header {
+  padding: 21px 22px;
+  border-bottom: 1px solid #edf2ef;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.passbook-modal-header h2 {
+  margin: 0;
+  color: #20352a;
+  font-size: 20px;
+}
+
+.passbook-modal-header p {
+  margin: 5px 0 0;
+  color: #7b8880;
+  font-size: 13px;
+}
+
+.passbook-close-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 9px;
+  background: #f3f6f4;
+  color: #65746c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.passbook-close-btn:hover {
+  background: #eaf0ec;
+}
+
+.passbook-form {
+  padding: 22px;
+}
+
+.passbook-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 17px;
+  color: #42554a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.passbook-form input,
+.passbook-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d8e3dc;
+  border-radius: 10px;
+  padding: 11px 12px;
+  color: #26392f;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.passbook-form input:focus,
+.passbook-form textarea:focus {
+  border-color: #5b9a72;
+  box-shadow: 0 0 0 3px rgba(91, 154, 114, 0.12);
+}
+
+.passbook-form textarea {
+  resize: vertical;
+  min-height: 85px;
+}
+
+.passbook-type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.passbook-type-selector button {
+  border: 1px solid #dce6e0;
+  background: #ffffff;
+  color: #64736a;
+  border-radius: 10px;
+  padding: 11px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.passbook-type-selector button:hover {
+  background: #f7faf8;
+}
+
+.passbook-type-selector button.active.income {
+  background: #eaf7ef;
+  border-color: #a9d5b8;
+  color: #27834b;
+}
+
+.passbook-type-selector button.active.expense {
+  background: #fff0ed;
+  border-color: #efc0b7;
+  color: #d3543c;
+}
+
+.passbook-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.amount-input {
+  position: relative;
+}
+
+.amount-input svg {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #718078;
+}
+
+.amount-input input {
+  padding-left: 33px;
+}
+
+.passbook-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.passbook-cancel-btn {
+  background: #f1f4f2;
+  color: #526158;
+}
+
+.passbook-cancel-btn:hover {
+  background: #e7ece9;
+}
+
+.passbook-save-btn {
+  background: #2f7d4f;
+  color: #ffffff;
+}
+
+.passbook-save-btn:hover {
+  background: #286d44;
+}
+
+.passbook-save-btn:disabled,
+.passbook-cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Tablet */
+
+@media (max-width: 900px) {
+  .passbook-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .passbook-summary-card {
+    padding: 17px;
+  }
+
+  .passbook-transaction {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .transaction-amount {
+    grid-column: 2;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .transaction-actions {
+    justify-content: flex-start;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+  .passbook-actions {
+    justify-content: stretch;
+    flex-direction: column;
+  }
+
+  .passbook-refresh-btn,
+  .passbook-add-btn {
+    width: 100%;
+  }
+
+  .passbook-summary-card strong {
+    font-size: 20px;
+  }
+
+  .passbook-history-header {
+    padding: 17px;
+  }
+
+  .passbook-transaction {
+    padding: 17px;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .transaction-type-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .transaction-title-row h3 {
+    font-size: 14px;
+  }
+
+  .transaction-main > p {
+    font-size: 12px;
+  }
+
+  .transaction-meta {
+    gap: 8px;
+    font-size: 11px;
+  }
+
+  .transaction-amount {
+    grid-column: 2;
+  }
+
+  .transaction-amount strong {
+    font-size: 15px;
+  }
+
+  .passbook-modal-overlay {
+    padding: 10px;
+    align-items: flex-end;
+  }
+
+  .passbook-modal {
+    max-height: calc(100vh - 20px);
+    border-radius: 18px 18px 10px 10px;
+  }
+
+  .passbook-form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .passbook-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .passbook-cancel-btn,
+  .passbook-save-btn {
+    width: 100%;
+  }
+}
