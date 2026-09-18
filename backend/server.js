@@ -12,12 +12,17 @@ const weatherRoutes = require('./routes/weatherRoutes');
 const marketRoutes = require('./routes/marketRoutes');
 const marketPriceRoutes = require('./routes/marketPriceRoutes');
 const bidRoutes = require('./routes/bidRoutes');
+const transactionRoutes = require('./routes/transactionRoutes');
 
 const app = express();
 
 connectDB();
 
 const PORT = process.env.PORT || 5000;
+
+// =========================
+// Middleware
+// =========================
 
 app.use(helmet());
 
@@ -39,6 +44,10 @@ app.use(
 
 app.use(morgan('dev'));
 
+// =========================
+// Basic API Routes
+// =========================
+
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     success: true,
@@ -55,11 +64,25 @@ app.get('/api', (req, res) => {
   });
 });
 
+// =========================
+// Application Routes
+// =========================
+
 app.use('/api/crops', cropRoutes);
+
 app.use('/api/weather', weatherRoutes);
+
 app.use('/api/markets', marketRoutes);
+
 app.use('/api/market-prices', marketPriceRoutes);
+
 app.use('/api/bids', bidRoutes);
+
+app.use('/api/transactions', transactionRoutes);
+
+// =========================
+// 404 Handler
+// =========================
 
 app.use((req, res) => {
   res.status(404).json({
@@ -68,20 +91,46 @@ app.use((req, res) => {
   });
 });
 
+// =========================
+// Start Server
+// =========================
+
 app.listen(PORT, () => {
   console.log('');
   console.log('🌾 KrishiBandhu Backend');
   console.log('-------------------------');
-  console.log(`🚀 Server: http://localhost:${PORT}`);
-  console.log(`❤️  Health: http://localhost:${PORT}/api/health`);
-  console.log(`🌱 Crops: http://localhost:${PORT}/api/crops`);
+
+  console.log(
+    `🚀 Server: http://localhost:${PORT}`,
+  );
+
+  console.log(
+    `❤️  Health: http://localhost:${PORT}/api/health`,
+  );
+
+  console.log(
+    `🌱 Crops: http://localhost:${PORT}/api/crops`,
+  );
+
   console.log(
     `🌦️ Weather: http://localhost:${PORT}/api/weather?city=Bengaluru`,
   );
-  console.log(`📈 Markets: http://localhost:${PORT}/api/markets`);
+
+  console.log(
+    `📈 Markets: http://localhost:${PORT}/api/markets`,
+  );
+
   console.log(
     `💰 Market Prices: http://localhost:${PORT}/api/market-prices`,
   );
-  console.log(`🤝 Bids: http://localhost:${PORT}/api/bids`);
+
+  console.log(
+    `🤝 Bids: http://localhost:${PORT}/api/bids`,
+  );
+
+  console.log(
+    `📒 Transactions: http://localhost:${PORT}/api/transactions`,
+  );
+
   console.log('');
 });
