@@ -1,0 +1,262 @@
+/* =========================================
+   Crop Form Card
+========================================= */
+
+.crop-form-card {
+  background: #ffffff;
+  border: 1px solid #e5ebe7;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 4px 16px rgba(31, 61, 48, 0.06);
+}
+
+
+/* =========================================
+   Form Header
+========================================= */
+
+.crop-form-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.crop-form-header h2 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  color: #17231d;
+}
+
+.crop-form-header p {
+  margin: 0;
+  color: #718078;
+  font-size: 14px;
+}
+
+.crop-form-close {
+  border: none;
+  background: transparent;
+  color: #6c7972;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.crop-form-close:hover {
+  color: #246b4b;
+}
+
+
+/* =========================================
+   Form Grid
+========================================= */
+
+.crop-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group-full {
+  grid-column: 1 / -1;
+}
+
+
+/* =========================================
+   Labels
+========================================= */
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #34423a;
+}
+
+.form-group label span {
+  color: #d9534f;
+}
+
+
+/* =========================================
+   Inputs / Select / Textarea
+========================================= */
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d9e2dc;
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #26332c;
+  background: #ffffff;
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #2f7d5a;
+  box-shadow: 0 0 0 3px rgba(47, 125, 90, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+
+/* =========================================
+   Error Message
+========================================= */
+
+.crop-form-error {
+  margin-top: 20px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: #fff1f0;
+  border: 1px solid #ffd5d2;
+  color: #b42318;
+  font-size: 14px;
+}
+
+
+/* =========================================
+   Form Actions
+========================================= */
+
+.crop-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+
+/* Both buttons have the same size */
+
+.crop-form-actions .secondary-button,
+.crop-form-actions .primary-button {
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+
+  height: 42px;
+
+  padding: 0 !important;
+  margin: 0;
+
+  box-sizing: border-box;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  line-height: 42px;
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+
+/* =========================================
+   Cancel Button
+========================================= */
+
+.crop-form-actions .secondary-button {
+  border: 1px solid #d9e2dc;
+  background: #ffffff;
+  color: #34423a;
+}
+
+.crop-form-actions .secondary-button:hover {
+  background: #f5f8f6;
+}
+
+
+/* =========================================
+   Save / Update Button
+========================================= */
+
+.crop-form-actions .primary-button {
+  border: 1px solid #2f7d5a;
+  background: #2f7d5a;
+  color: #ffffff;
+}
+
+.crop-form-actions .primary-button:hover {
+  background: #286c4e;
+  border-color: #286c4e;
+}
+
+
+/* =========================================
+   Disabled Buttons
+========================================= */
+
+.crop-form-actions .secondary-button:disabled,
+.crop-form-actions .primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+/* =========================================
+   Tablet
+========================================= */
+
+@media (max-width: 700px) {
+  .crop-form-card {
+    padding: 20px;
+  }
+
+  .crop-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group-full {
+    grid-column: auto;
+  }
+}
+
+
+/* =========================================
+   Mobile
+========================================= */
+
+@media (max-width: 600px) {
+  .crop-form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .crop-form-actions .secondary-button,
+  .crop-form-actions .primary-button {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+}
