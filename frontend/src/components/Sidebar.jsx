@@ -9,36 +9,45 @@ import {
   Settings,
 } from 'lucide-react';
 
+import { NavLink } from 'react-router-dom';
+
 import './Sidebar.css';
 
 const menuItems = [
   {
     label: 'Dashboard',
     icon: LayoutDashboard,
+    path: '/dashboard',
   },
   {
     label: 'Crops',
     icon: Sprout,
+    path: '/crops',
   },
   {
     label: 'Market',
     icon: TrendingUp,
+    path: '/market',
   },
   {
     label: 'Bids',
     icon: Gavel,
+    path: '/bids',
   },
   {
     label: 'Weather',
     icon: CloudSun,
+    path: '/weather',
   },
   {
     label: 'AI Assistant',
     icon: Bot,
+    path: '/ai-assistant',
   },
   {
     label: 'Passbook',
     icon: BookOpen,
+    path: '/passbook',
   },
 ];
 
@@ -48,22 +57,25 @@ function Sidebar() {
 
       <div className="sidebar-menu">
 
-        {menuItems.map((item, index) => {
+        {menuItems.map((item) => {
           const Icon = item.icon;
 
           return (
-            <button
+            <NavLink
               key={item.label}
-              className={`sidebar-item ${
-                index === 0 ? 'active' : ''
-              }`}
+              to={item.path}
+              className={({ isActive }) =>
+                `sidebar-item ${
+                  isActive ? 'active' : ''
+                }`
+              }
             >
               <Icon size={19} />
 
               <span>
                 {item.label}
               </span>
-            </button>
+            </NavLink>
           );
         })}
 
@@ -71,13 +83,20 @@ function Sidebar() {
 
       <div className="sidebar-bottom">
 
-        <button className="sidebar-item">
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `sidebar-item ${
+              isActive ? 'active' : ''
+            }`
+          }
+        >
           <Settings size={19} />
 
           <span>
             Settings
           </span>
-        </button>
+        </NavLink>
 
       </div>
 

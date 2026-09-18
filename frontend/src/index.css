@@ -72,3 +72,57 @@ img {
 #root {
   min-height: 100vh;
 }
+
+.empty-page-card {
+  padding: 28px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-sm);
+}
+
+.empty-page-card h2 {
+  font-size: 18px;
+  font-weight: 600;
+
+  color: var(--text-primary);
+}
+
+.empty-page-card p {
+  margin-top: 7px;
+
+  font-size: 13px;
+  line-height: 1.6;
+
+  color: var(--text-secondary);
+}
+
+.primary-button {
+  margin-top: 18px;
+
+  padding: 10px 16px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: var(--primary);
+  color: white;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.primary-button:hover {
+  background: var(--primary-dark);
+}
+
+.primary-button:active {
+  transform: scale(0.97);
+}
