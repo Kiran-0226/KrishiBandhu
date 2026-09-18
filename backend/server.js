@@ -1,10 +1,14 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-require('dotenv').config();
+const connectDB = require('./config/db');
 
 const app = express();
+
+connectDB();
 
 const PORT = process.env.PORT || 5000;
 
