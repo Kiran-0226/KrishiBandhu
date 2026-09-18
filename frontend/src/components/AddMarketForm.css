@@ -1,0 +1,353 @@
+/* =========================================
+   Add Market Form Card
+========================================= */
+
+.add-market-form-card {
+  background: #ffffff;
+
+  border: 1px solid #e5ebe7;
+  border-radius: 16px;
+
+  padding: 28px;
+
+  box-shadow:
+    0 4px 16px rgba(
+      31,
+      61,
+      48,
+      0.06
+    );
+}
+
+/* =========================================
+   Header
+========================================= */
+
+.add-market-form-header {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 28px;
+}
+
+.add-market-form-header h2 {
+  margin: 0 0 6px;
+
+  color: #17231d;
+
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.add-market-form-header p {
+  margin: 0;
+
+  color: #718078;
+
+  font-size: 14px;
+}
+
+.add-market-form-close {
+  border: none;
+
+  background: transparent;
+
+  color: #6c7972;
+
+  font-size: 28px;
+  line-height: 1;
+
+  padding: 2px 6px;
+
+  cursor: pointer;
+}
+
+.add-market-form-close:hover {
+  color: #246b4b;
+}
+
+/* =========================================
+   Form Grid
+========================================= */
+
+.add-market-form-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 20px;
+}
+
+/* =========================================
+   Form Groups
+========================================= */
+
+.market-form-group {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.market-form-group label {
+  color: #34423a;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.market-form-group label span {
+  color: #d9534f;
+}
+
+/* =========================================
+   Inputs & Select
+========================================= */
+
+.market-form-group input,
+.market-form-group select {
+  width: 100%;
+
+  height: 44px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #d9e2dc;
+  border-radius: 10px;
+
+  padding: 0 13px;
+
+  background: #ffffff;
+
+  color: #26332c;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.market-form-group input::placeholder {
+  color: #9aa59f;
+}
+
+.market-form-group input:hover,
+.market-form-group select:hover {
+  border-color: #c5d4cb;
+}
+
+.market-form-group input:focus,
+.market-form-group select:focus {
+  border-color: #2f7d5a;
+
+  box-shadow:
+    0 0 0 3px rgba(
+      47,
+      125,
+      90,
+      0.1
+    );
+}
+
+/* =========================================
+   Information Box
+========================================= */
+
+.market-form-info {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 10px;
+
+  margin-top: 22px;
+
+  padding: 12px 14px;
+
+  border: 1px solid #dcebe1;
+  border-radius: 10px;
+
+  background: #f5faf7;
+
+  color: #526159;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+.market-form-info span {
+  flex-shrink: 0;
+}
+
+.market-form-info p {
+  margin: 0;
+}
+
+.market-form-info strong {
+  color: #28734d;
+}
+
+/* =========================================
+   Error
+========================================= */
+
+.market-form-error {
+  margin-top: 18px;
+
+  padding: 11px 14px;
+
+  border: 1px solid #ffd5d2;
+  border-radius: 10px;
+
+  background: #fff1f0;
+
+  color: #b42318;
+
+  font-size: 14px;
+}
+
+/* =========================================
+   Success
+========================================= */
+
+.market-form-success {
+  margin-top: 18px;
+
+  padding: 11px 14px;
+
+  border: 1px solid #cce6d4;
+  border-radius: 10px;
+
+  background: #eef9f1;
+
+  color: #28734d;
+
+  font-size: 14px;
+}
+
+/* =========================================
+   Actions
+========================================= */
+
+.add-market-form-actions {
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 12px;
+
+  margin-top: 28px;
+}
+
+.market-form-cancel-button,
+.market-form-submit-button {
+  width: 130px;
+  height: 42px;
+
+  box-sizing: border-box;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+/* =========================================
+   Cancel
+========================================= */
+
+.market-form-cancel-button {
+  border: 1px solid #d9e2dc;
+
+  background: #ffffff;
+
+  color: #34423a;
+}
+
+.market-form-cancel-button:hover {
+  background: #f5f8f6;
+}
+
+/* =========================================
+   Submit
+========================================= */
+
+.market-form-submit-button {
+  border: 1px solid #2f7d5a;
+
+  background: #2f7d5a;
+
+  color: #ffffff;
+}
+
+.market-form-submit-button:hover {
+  background: #286c4e;
+
+  border-color: #286c4e;
+}
+
+/* =========================================
+   Disabled
+========================================= */
+
+.market-form-cancel-button:disabled,
+.market-form-submit-button:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+/* =========================================
+   Tablet
+========================================= */
+
+@media (max-width: 700px) {
+  .add-market-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================
+   Mobile
+========================================= */
+
+@media (max-width: 600px) {
+  .add-market-form-card {
+    padding: 20px;
+  }
+
+  .add-market-form-header h2 {
+    font-size: 21px;
+  }
+
+  .add-market-form-actions {
+    flex-direction: column-reverse;
+
+    align-items: stretch;
+  }
+
+  .market-form-cancel-button,
+  .market-form-submit-button {
+    width: 100%;
+  }
+}
