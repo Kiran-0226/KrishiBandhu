@@ -13,6 +13,8 @@ const marketRoutes = require('./routes/marketRoutes');
 const marketPriceRoutes = require('./routes/marketPriceRoutes');
 const bidRoutes = require('./routes/bidRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const aiRoutes = require('./routes/aiRoutes');
+const aiImageRoutes = require('./routes/aiImageRoutes');
 
 const app = express();
 
@@ -34,11 +36,18 @@ app.use(
   }),
 );
 
-app.use(express.json());
+// Increase JSON body limit because crop images
+// are temporarily sent as Base64 data.
+app.use(
+  express.json({
+    limit: '12mb',
+  }),
+);
 
 app.use(
   express.urlencoded({
     extended: true,
+    limit: '12mb',
   }),
 );
 
@@ -79,6 +88,13 @@ app.use('/api/market-prices', marketPriceRoutes);
 app.use('/api/bids', bidRoutes);
 
 app.use('/api/transactions', transactionRoutes);
+
+app.use('/api/ai', aiRoutes);
+
+app.use(
+  '/api/ai/image',
+  aiImageRoutes,
+);
 
 // =========================
 // 404 Handler
@@ -130,6 +146,14 @@ app.listen(PORT, () => {
 
   console.log(
     `📒 Transactions: http://localhost:${PORT}/api/transactions`,
+  );
+
+  console.log(
+    `🤖 AI Assistant: http://localhost:${PORT}/api/ai/chat`,
+  );
+
+  console.log(
+    `📸 Crop Analysis: http://localhost:${PORT}/api/ai/image/analyze`,
   );
 
   console.log('');
