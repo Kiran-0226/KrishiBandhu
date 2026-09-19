@@ -7,13 +7,23 @@ import {
   Bot,
   BookOpen,
   Settings,
+  ShoppingBasket,
+  ReceiptText,
+  CreditCard,
+  Users,
+  Store,
+  WalletCards,
+  Handshake,
+  FileText,
 } from 'lucide-react';
 
 import { NavLink } from 'react-router-dom';
 
+import { useAuth } from '../context/AuthContext';
+
 import './Sidebar.css';
 
-const menuItems = [
+const farmerMenuItems = [
   {
     label: 'Dashboard',
     icon: LayoutDashboard,
@@ -51,7 +61,107 @@ const menuItems = [
   },
 ];
 
+const traderMenuItems = [
+  {
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    path: '/trader',
+  },
+  {
+    label: 'Find Crops',
+    icon: ShoppingBasket,
+    path: '/trader/crops',
+  },
+  {
+    label: 'Market',
+    icon: TrendingUp,
+    path: '/market',
+  },
+  {
+    label: 'My Bids',
+    icon: Gavel,
+    path: '/trader/bids',
+  },
+  {
+    label: 'Purchases',
+    icon: Handshake,
+    path: '/trader/purchases',
+  },
+  {
+    label: 'Parchi',
+    icon: ReceiptText,
+    path: '/parchi',
+  },
+  {
+    label: 'Payments',
+    icon: CreditCard,
+    path: '/payments',
+  },
+  {
+    label: 'Passbook',
+    icon: BookOpen,
+    path: '/passbook',
+  },
+];
+
+const adminMenuItems = [
+  {
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    path: '/admin',
+  },
+  {
+    label: 'Users',
+    icon: Users,
+    path: '/admin/users',
+  },
+  {
+    label: 'Markets',
+    icon: Store,
+    path: '/admin/markets',
+  },
+  {
+    label: 'Crops',
+    icon: Sprout,
+    path: '/admin/crops',
+  },
+  {
+    label: 'Bids',
+    icon: Gavel,
+    path: '/admin/bids',
+  },
+  {
+    label: 'Parchi',
+    icon: FileText,
+    path: '/admin/parchi',
+  },
+  {
+    label: 'Transactions',
+    icon: WalletCards,
+    path: '/admin/transactions',
+  },
+  {
+    label: 'Payments',
+    icon: CreditCard,
+    path: '/admin/payments',
+  },
+];
+
 function Sidebar() {
+  const { user } = useAuth();
+
+  const role = user?.role || 'farmer';
+
+  let menuItems = farmerMenuItems;
+
+  if (role === 'trader') {
+    menuItems = traderMenuItems;
+  }
+
+  if (role === 'admin') {
+    menuItems = adminMenuItems;
+  }
+
   return (
     <aside className="sidebar">
 

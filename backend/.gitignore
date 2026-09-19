@@ -1,4 +1,18 @@
+# Dependencies
 node_modules/
+
+# Environment variables
 .env
+
+# Logs
 *.log
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Local backups
+backups/
+
+# One-time admin creation script
+createAdmin.js

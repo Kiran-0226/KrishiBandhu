@@ -7,24 +7,57 @@ const morgan = require('morgan');
 
 const connectDB = require('./config/db');
 
+// ==========================================
+// Application Routes
+// ==========================================
+
+const authRoutes = require('./routes/authRoutes');
+
 const cropRoutes = require('./routes/cropRoutes');
+
 const weatherRoutes = require('./routes/weatherRoutes');
+
 const marketRoutes = require('./routes/marketRoutes');
+
 const marketPriceRoutes = require('./routes/marketPriceRoutes');
+
 const bidRoutes = require('./routes/bidRoutes');
+
 const transactionRoutes = require('./routes/transactionRoutes');
+
 const aiRoutes = require('./routes/aiRoutes');
+
 const aiImageRoutes = require('./routes/aiImageRoutes');
+
+// ==========================================
+// Admin Routes
+// ==========================================
+
+const adminRoutes = require('./routes/adminRoutes');
+
+const adminUserRoutes = require('./routes/adminUserRoutes');
+
+// ==========================================
+// Create Express App
+// ==========================================
 
 const app = express();
 
+// ==========================================
+// Connect MongoDB
+// ==========================================
+
 connectDB();
+
+// ==========================================
+// Port
+// ==========================================
 
 const PORT = process.env.PORT || 5000;
 
-// =========================
+// ==========================================
 // Middleware
-// =========================
+// ==========================================
 
 app.use(helmet());
 
@@ -36,8 +69,6 @@ app.use(
   }),
 );
 
-// Increase JSON body limit because crop images
-// are temporarily sent as Base64 data.
 app.use(
   express.json({
     limit: '12mb',
@@ -53,9 +84,9 @@ app.use(
 
 app.use(morgan('dev'));
 
-// =========================
+// ==========================================
 // Basic API Routes
-// =========================
+// ==========================================
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({
@@ -73,47 +104,144 @@ app.get('/api', (req, res) => {
   });
 });
 
-// =========================
-// Application Routes
-// =========================
+// ==========================================
+// Authentication
+// ==========================================
 
-app.use('/api/crops', cropRoutes);
+app.use(
+  '/api/auth',
+  authRoutes,
+);
 
-app.use('/api/weather', weatherRoutes);
+// ==========================================
+// Farmer / Crop Routes
+// ==========================================
 
-app.use('/api/markets', marketRoutes);
+app.use(
+  '/api/crops',
+  cropRoutes,
+);
 
-app.use('/api/market-prices', marketPriceRoutes);
+// ==========================================
+// Weather
+// ==========================================
 
-app.use('/api/bids', bidRoutes);
+app.use(
+  '/api/weather',
+  weatherRoutes,
+);
 
-app.use('/api/transactions', transactionRoutes);
+// ==========================================
+// Markets
+// ==========================================
 
-app.use('/api/ai', aiRoutes);
+app.use(
+  '/api/markets',
+  marketRoutes,
+);
+
+// ==========================================
+// Market Prices
+// ==========================================
+
+app.use(
+  '/api/market-prices',
+  marketPriceRoutes,
+);
+
+// ==========================================
+// Bids
+// ==========================================
+
+app.use(
+  '/api/bids',
+  bidRoutes,
+);
+
+// ==========================================
+// Transactions
+// ==========================================
+
+app.use(
+  '/api/transactions',
+  transactionRoutes,
+);
+
+// ==========================================
+// AI Assistant
+// ==========================================
+
+app.use(
+  '/api/ai',
+  aiRoutes,
+);
+
+// ==========================================
+// AI Image Analysis
+// ==========================================
 
 app.use(
   '/api/ai/image',
   aiImageRoutes,
 );
 
-// =========================
+// ==========================================
+// Admin Dashboard
+// ==========================================
+
+app.use(
+  '/api/admin',
+  adminRoutes,
+);
+
+// ==========================================
+// Admin User Management
+// ==========================================
+
+app.use(
+  '/api/admin/users',
+  adminUserRoutes,
+);
+
+// ==========================================
 // 404 Handler
-// =========================
+// ==========================================
 
 app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: 'API endpoint not found',
+    path: req.originalUrl,
   });
 });
 
-// =========================
+// ==========================================
+// Global Error Handler
+// ==========================================
+
+app.use(
+  (error, req, res, next) => {
+    console.error(
+      'Unhandled Server Error:',
+      error,
+    );
+
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error.',
+    });
+  },
+);
+
+// ==========================================
 // Start Server
-// =========================
+// ==========================================
 
 app.listen(PORT, () => {
   console.log('');
+
   console.log('🌾 KrishiBandhu Backend');
+
   console.log('-------------------------');
 
   console.log(
@@ -122,6 +250,10 @@ app.listen(PORT, () => {
 
   console.log(
     `❤️  Health: http://localhost:${PORT}/api/health`,
+  );
+
+  console.log(
+    `🔐 Auth: http://localhost:${PORT}/api/auth`,
   );
 
   console.log(
@@ -154,6 +286,14 @@ app.listen(PORT, () => {
 
   console.log(
     `📸 Crop Analysis: http://localhost:${PORT}/api/ai/image/analyze`,
+  );
+
+  console.log(
+    `🛡️ Admin: http://localhost:${PORT}/api/admin`,
+  );
+
+  console.log(
+    `👥 Admin Users: http://localhost:${PORT}/api/admin/users`,
   );
 
   console.log('');

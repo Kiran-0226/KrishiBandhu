@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import './Passbook.css';
+import './Passbook.css';  
 import {
   ArrowDownCircle,
   ArrowUpCircle,
