@@ -8,21 +8,69 @@ const {
   deleteCrop,
 } = require('../controllers/cropController');
 
+const {
+  protect,
+  requireRole,
+} = require('../middleware/authMiddleware');
+
 const router = express.Router();
 
+// ==========================================
+// Authentication
+// ==========================================
+
+router.use(protect);
+
+
+// ==========================================
+// Crop Routes
+// ==========================================
+
 // GET /api/crops
-router.get('/', getCrops);
+// Farmer → own crops
+// Admin  → all crops
+router.get(
+  '/',
+  getCrops,
+);
+
 
 // GET /api/crops/:id
-router.get('/:id', getCropById);
+// Farmer → own crop
+// Admin  → any crop
+router.get(
+  '/:id',
+  getCropById,
+);
+
 
 // POST /api/crops
-router.post('/', createCrop);
+// Farmer only
+router.post(
+  '/',
+  requireRole('farmer'),
+  createCrop,
+);
+
 
 // PUT /api/crops/:id
-router.put('/:id', updateCrop);
+// Farmer → own crop
+// Admin  → any crop
+router.put(
+  '/:id',
+  requireRole('farmer', 'admin'),
+  updateCrop,
+);
+
 
 // DELETE /api/crops/:id
-router.delete('/:id', deleteCrop);
+// Farmer → own crop
+// Admin  → any crop
+router.delete(
+  '/:id',
+  requireRole('farmer', 'admin'),
+  deleteCrop,
+);
+
 
 module.exports = router;

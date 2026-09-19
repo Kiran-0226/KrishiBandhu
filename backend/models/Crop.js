@@ -2,6 +2,20 @@ const mongoose = require('mongoose');
 
 const cropSchema = new mongoose.Schema(
   {
+    // ==========================================
+    // Crop Owner
+    // ==========================================
+
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+
+    // ==========================================
+    // Crop Information
+    // ==========================================
+
     name: {
       type: String,
       required: true,
@@ -12,6 +26,10 @@ const cropSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+
+    // ==========================================
+    // Farm Area
+    // ==========================================
 
     area: {
       type: Number,
@@ -25,6 +43,10 @@ const cropSchema = new mongoose.Schema(
       default: 'acre',
     },
 
+    // ==========================================
+    // Crop Dates
+    // ==========================================
+
     sowingDate: {
       type: Date,
     },
@@ -32,6 +54,10 @@ const cropSchema = new mongoose.Schema(
     expectedHarvestDate: {
       type: Date,
     },
+
+    // ==========================================
+    // Crop Status
+    // ==========================================
 
     status: {
       type: String,
@@ -44,6 +70,10 @@ const cropSchema = new mongoose.Schema(
       default: 'planned',
     },
 
+    // ==========================================
+    // Additional Notes
+    // ==========================================
+
     notes: {
       type: String,
       trim: true,
@@ -51,9 +81,12 @@ const cropSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const Crop = mongoose.model('Crop', cropSchema);
+const Crop = mongoose.model(
+  'Crop',
+  cropSchema,
+);
 
 module.exports = Crop;

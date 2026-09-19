@@ -1,27 +1,42 @@
-import { useEffect, useState } from 'react';
+import {
+  useEffect,
+  useState,
+} from 'react';
+
 import './CropForm.css';
 
 function CropForm({
   crop,
+  token,
   onCropAdded,
   onCropUpdated,
   onCancel,
 }) {
-  const [formData, setFormData] = useState({
-    name: '',
-    variety: '',
-    area: '',
-    areaUnit: 'acre',
-    sowingDate: '',
-    expectedHarvestDate: '',
-    status: 'planned',
-    notes: '',
-  });
+  const [formData, setFormData] =
+    useState({
+      name: '',
+      variety: '',
+      area: '',
+      areaUnit: 'acre',
+      sowingDate: '',
+      expectedHarvestDate: '',
+      status: 'planned',
+      notes: '',
+    });
 
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
+  const [saving, setSaving] =
+    useState(false);
 
-  const isEditing = Boolean(crop);
+  const [error, setError] =
+    useState('');
+
+  const isEditing =
+    Boolean(crop);
+
+
+  // ==========================================
+  // Load crop data when editing
+  // ==========================================
 
   useEffect(() => {
     if (crop) {
@@ -29,16 +44,27 @@ function CropForm({
         name: crop.name || '',
         variety: crop.variety || '',
         area: crop.area ?? '',
-        areaUnit: crop.areaUnit || 'acre',
-        sowingDate: crop.sowingDate
-          ? crop.sowingDate.slice(0, 10)
-          : '',
+        areaUnit:
+          crop.areaUnit || 'acre',
+
+        sowingDate:
+          crop.sowingDate
+            ? crop.sowingDate.slice(0, 10)
+            : '',
+
         expectedHarvestDate:
           crop.expectedHarvestDate
-            ? crop.expectedHarvestDate.slice(0, 10)
+            ? crop.expectedHarvestDate.slice(
+                0,
+                10,
+              )
             : '',
-        status: crop.status || 'planned',
-        notes: crop.notes || '',
+
+        status:
+          crop.status || 'planned',
+
+        notes:
+          crop.notes || '',
       });
     } else {
       setFormData({
@@ -56,31 +82,83 @@ function CropForm({
     setError('');
   }, [crop]);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
 
-    setFormData((previousData) => ({
-      ...previousData,
-      [name]: value,
-    }));
+  // ==========================================
+  // Handle form changes
+  // ==========================================
+
+  const handleChange = (
+    event,
+  ) => {
+    const {
+      name,
+      value,
+    } = event.target;
+
+    setFormData(
+      (previousData) => ({
+        ...previousData,
+        [name]: value,
+      }),
+    );
   };
 
-  const handleSubmit = async (event) => {
+
+  // ==========================================
+  // Submit
+  // ==========================================
+
+  const handleSubmit = async (
+    event,
+  ) => {
     event.preventDefault();
+
     setError('');
 
-    if (!formData.name.trim()) {
-      setError('Please enter a crop name.');
+
+    // ------------------------------------------
+    // Authentication check
+    // ------------------------------------------
+
+    if (!token) {
+      setError(
+        'Your session has expired. Please login again.',
+      );
+
       return;
     }
+
+
+    // ------------------------------------------
+    // Validation
+    // ------------------------------------------
+
+    if (
+      !formData.name.trim()
+    ) {
+      setError(
+        'Please enter a crop name.',
+      );
+
+      return;
+    }
+
 
     if (
       !formData.area ||
       Number(formData.area) <= 0
     ) {
-      setError('Please enter a valid area.');
+      setError(
+        'Please enter a valid area.',
+      );
+
       return;
     }
+
+
+    // ------------------------------------------
+    // API request
+    // ------------------------------------------
 
     try {
       setSaving(true);
@@ -89,63 +167,120 @@ function CropForm({
         ? `http://localhost:5000/api/crops/${crop._id}`
         : 'http://localhost:5000/api/crops';
 
-      const method = isEditing ? 'PUT' : 'POST';
+      const method =
+        isEditing
+          ? 'PUT'
+          : 'POST';
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          name: formData.name.trim(),
-          variety: formData.variety.trim(),
-          area: Number(formData.area),
-          notes: formData.notes.trim(),
-        }),
-      });
 
-      const result = await response.json();
+      const response =
+        await fetch(
+          url,
+          {
+            method,
 
-      if (!response.ok || !result.success) {
+            headers: {
+              'Content-Type':
+                'application/json',
+
+              Authorization:
+                `Bearer ${token}`,
+            },
+
+            body: JSON.stringify({
+              ...formData,
+
+              name:
+                formData.name.trim(),
+
+              variety:
+                formData.variety.trim(),
+
+              area:
+                Number(formData.area),
+
+              notes:
+                formData.notes.trim(),
+            }),
+          },
+        );
+
+
+      const result =
+        await response.json();
+
+
+      if (
+        !response.ok ||
+        !result.success
+      ) {
         throw new Error(
           result.message ||
             `Failed to ${
-              isEditing ? 'update' : 'create'
-            } crop.`
+              isEditing
+                ? 'update'
+                : 'create'
+            } crop.`,
         );
       }
 
+
+      // ----------------------------------------
+      // Notify parent component
+      // ----------------------------------------
+
       if (isEditing) {
-        onCropUpdated(result.data);
+        onCropUpdated(
+          result.data,
+        );
       } else {
-        onCropAdded(result.data);
+        onCropAdded(
+          result.data,
+        );
       }
+
     } catch (err) {
       console.error(
         isEditing
           ? 'Update crop error:'
           : 'Create crop error:',
-        err
+        err,
       );
 
       setError(
         err.message ||
           `Unable to ${
-            isEditing ? 'update' : 'save'
-          } crop.`
+            isEditing
+              ? 'update'
+              : 'save'
+          } crop.`,
       );
+
     } finally {
       setSaving(false);
     }
   };
 
+
+  // ==========================================
+  // Render
+  // ==========================================
+
   return (
     <div className="crop-form-card">
+
+      {/* ========================================
+          Header
+      ======================================== */}
+
       <div className="crop-form-header">
+
         <div>
+
           <h2>
-            {isEditing ? 'Edit Crop' : 'Add Crop'}
+            {isEditing
+              ? 'Edit Crop'
+              : 'Add Crop'}
           </h2>
 
           <p>
@@ -153,23 +288,40 @@ function CropForm({
               ? 'Update your crop details.'
               : 'Enter the details of your crop.'}
           </p>
+
         </div>
+
 
         <button
           type="button"
           className="crop-form-close"
           onClick={onCancel}
           aria-label="Close form"
+          disabled={saving}
         >
           ×
         </button>
+
       </div>
 
-      <form onSubmit={handleSubmit}>
+
+      {/* ========================================
+          Form
+      ======================================== */}
+
+      <form
+        onSubmit={handleSubmit}
+      >
+
         <div className="crop-form-grid">
+
+          {/* Crop Name */}
+
           <div className="form-group">
+
             <label htmlFor="name">
-              Crop Name <span>*</span>
+              Crop Name{' '}
+              <span>*</span>
             </label>
 
             <input
@@ -177,13 +329,22 @@ function CropForm({
               name="name"
               type="text"
               placeholder="e.g. Tomato"
-              value={formData.name}
-              onChange={handleChange}
+              value={
+                formData.name
+              }
+              onChange={
+                handleChange
+              }
               required
             />
+
           </div>
 
+
+          {/* Variety */}
+
           <div className="form-group">
+
             <label htmlFor="variety">
               Variety
             </label>
@@ -193,14 +354,24 @@ function CropForm({
               name="variety"
               type="text"
               placeholder="e.g. Arka Rakshak"
-              value={formData.variety}
-              onChange={handleChange}
+              value={
+                formData.variety
+              }
+              onChange={
+                handleChange
+              }
             />
+
           </div>
 
+
+          {/* Area */}
+
           <div className="form-group">
+
             <label htmlFor="area">
-              Area <span>*</span>
+              Area{' '}
+              <span>*</span>
             </label>
 
             <input
@@ -210,13 +381,22 @@ function CropForm({
               min="0"
               step="0.01"
               placeholder="e.g. 2.5"
-              value={formData.area}
-              onChange={handleChange}
+              value={
+                formData.area
+              }
+              onChange={
+                handleChange
+              }
               required
             />
+
           </div>
 
+
+          {/* Area Unit */}
+
           <div className="form-group">
+
             <label htmlFor="areaUnit">
               Area Unit
             </label>
@@ -224,9 +404,14 @@ function CropForm({
             <select
               id="areaUnit"
               name="areaUnit"
-              value={formData.areaUnit}
-              onChange={handleChange}
+              value={
+                formData.areaUnit
+              }
+              onChange={
+                handleChange
+              }
             >
+
               <option value="acre">
                 Acre
               </option>
@@ -238,10 +423,16 @@ function CropForm({
               <option value="gunta">
                 Gunta
               </option>
+
             </select>
+
           </div>
 
+
+          {/* Sowing Date */}
+
           <div className="form-group">
+
             <label htmlFor="sowingDate">
               Sowing Date
             </label>
@@ -250,12 +441,21 @@ function CropForm({
               id="sowingDate"
               name="sowingDate"
               type="date"
-              value={formData.sowingDate}
-              onChange={handleChange}
+              value={
+                formData.sowingDate
+              }
+              onChange={
+                handleChange
+              }
             />
+
           </div>
 
+
+          {/* Expected Harvest */}
+
           <div className="form-group">
+
             <label htmlFor="expectedHarvestDate">
               Expected Harvest Date
             </label>
@@ -264,12 +464,21 @@ function CropForm({
               id="expectedHarvestDate"
               name="expectedHarvestDate"
               type="date"
-              value={formData.expectedHarvestDate}
-              onChange={handleChange}
+              value={
+                formData.expectedHarvestDate
+              }
+              onChange={
+                handleChange
+              }
             />
+
           </div>
 
+
+          {/* Status */}
+
           <div className="form-group">
+
             <label htmlFor="status">
               Status
             </label>
@@ -277,9 +486,14 @@ function CropForm({
             <select
               id="status"
               name="status"
-              value={formData.status}
-              onChange={handleChange}
+              value={
+                formData.status
+              }
+              onChange={
+                handleChange
+              }
             >
+
               <option value="planned">
                 Planned
               </option>
@@ -295,10 +509,16 @@ function CropForm({
               <option value="harvested">
                 Harvested
               </option>
+
             </select>
+
           </div>
 
+
+          {/* Notes */}
+
           <div className="form-group form-group-full">
+
             <label htmlFor="notes">
               Notes
             </label>
@@ -308,11 +528,22 @@ function CropForm({
               name="notes"
               rows="4"
               placeholder="Add any additional notes..."
-              value={formData.notes}
-              onChange={handleChange}
+              value={
+                formData.notes
+              }
+              onChange={
+                handleChange
+              }
             />
+
           </div>
+
         </div>
+
+
+        {/* ======================================
+            Error
+        ====================================== */}
 
         {error && (
           <div className="crop-form-error">
@@ -320,7 +551,13 @@ function CropForm({
           </div>
         )}
 
+
+        {/* ======================================
+            Actions
+        ====================================== */}
+
         <div className="crop-form-actions">
+
           <button
             type="button"
             className="secondary-button"
@@ -329,6 +566,7 @@ function CropForm({
           >
             Cancel
           </button>
+
 
           <button
             type="submit"
@@ -343,8 +581,11 @@ function CropForm({
                 ? 'Update Crop'
                 : 'Save Crop'}
           </button>
+
         </div>
+
       </form>
+
     </div>
   );
 }
