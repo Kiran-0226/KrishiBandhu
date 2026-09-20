@@ -19,6 +19,8 @@ import Passbook from './pages/Passbook';
 import Parchi from './pages/Parchi';
 import Storage from './pages/Storage';
 import Settings from './pages/Settings';
+import Backhaul from './pages/Backhaul';
+import TraderBackhaul from './pages/TraderBackhaul';
 
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -111,10 +113,7 @@ const RoleRoute = ({
       user.role,
     )
   ) {
-    if (
-      user?.role ===
-      'trader'
-    ) {
+    if (user?.role === 'trader') {
       return (
         <Navigate
           to="/trader"
@@ -123,10 +122,7 @@ const RoleRoute = ({
       );
     }
 
-    if (
-      user?.role ===
-      'admin'
-    ) {
+    if (user?.role === 'admin') {
       return (
         <Navigate
           to="/admin"
@@ -164,10 +160,7 @@ const PublicRoute = ({
   }
 
   if (isAuthenticated) {
-    if (
-      user?.role ===
-      'trader'
-    ) {
+    if (user?.role === 'trader') {
       return (
         <Navigate
           to="/trader"
@@ -176,10 +169,7 @@ const PublicRoute = ({
       );
     }
 
-    if (
-      user?.role ===
-      'admin'
-    ) {
+    if (user?.role === 'admin') {
       return (
         <Navigate
           to="/admin"
@@ -206,10 +196,7 @@ const PublicRoute = ({
 const RoleRedirect = () => {
   const { user } = useAuth();
 
-  if (
-    user?.role ===
-    'trader'
-  ) {
+  if (user?.role === 'trader') {
     return (
       <Navigate
         to="/trader"
@@ -218,10 +205,7 @@ const RoleRedirect = () => {
     );
   }
 
-  if (
-    user?.role ===
-    'admin'
-  ) {
+  if (user?.role === 'admin') {
     return (
       <Navigate
         to="/admin"
@@ -245,7 +229,6 @@ const RoleRedirect = () => {
 function App() {
   return (
     <BrowserRouter>
-
       <Routes>
 
         {/* ============================== */}
@@ -391,6 +374,25 @@ function App() {
         />
 
         {/* ============================== */}
+        {/* FARMER BACKHAUL                */}
+        {/* ============================== */}
+
+        <Route
+          path="/backhaul"
+          element={
+            <RoleRoute
+              allowedRoles={[
+                'farmer',
+              ]}
+            >
+              <MainLayout>
+                <Backhaul />
+              </MainLayout>
+            </RoleRoute>
+          }
+        />
+
+        {/* ============================== */}
         {/* STORAGE & WAREHOUSES           */}
         {/* ============================== */}
 
@@ -434,6 +436,25 @@ function App() {
             >
               <MainLayout>
                 <TraderDashboard />
+              </MainLayout>
+            </RoleRoute>
+          }
+        />
+
+        {/* ============================== */}
+        {/* TRADER BACKHAUL                */}
+        {/* ============================== */}
+
+        <Route
+          path="/trader/backhaul"
+          element={
+            <RoleRoute
+              allowedRoles={[
+                'trader',
+              ]}
+            >
+              <MainLayout>
+                <TraderBackhaul />
               </MainLayout>
             </RoleRoute>
           }
@@ -561,7 +582,6 @@ function App() {
         />
 
       </Routes>
-
     </BrowserRouter>
   );
 }

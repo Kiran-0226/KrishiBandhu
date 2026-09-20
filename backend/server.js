@@ -29,6 +29,8 @@ const parchiRoutes = require('./routes/parchiRoutes');
 
 const storageRoutes = require('./routes/storageRoutes');
 
+const backhaulRoutes = require('./routes/backhaulRoutes');
+
 const app = express();
 
 connectDB();
@@ -207,6 +209,11 @@ app.use(
   storageRoutes,
 );
 
+app.use(
+  '/api/backhaul',
+  backhaulRoutes,
+);
+
 // ==========================================
 // 404 HANDLER
 // ==========================================
@@ -380,6 +387,9 @@ app.listen(
     );
     console.log(
       `🏬 Storage & Warehouses: http://localhost:${PORT}/api/storage`,
+    );
+    console.log(
+      `🚚 Backhaul: http://localhost:${PORT}/api/backhaul`,
     );
     console.log(
       `📎 Uploads: http://localhost:${PORT}/uploads`,

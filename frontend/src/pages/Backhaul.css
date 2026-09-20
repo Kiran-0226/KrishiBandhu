@@ -1,0 +1,545 @@
+.backhaul-page {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.backhaul-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 26px;
+}
+
+.backhaul-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.backhaul-title-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eaf7ef;
+  color: #16834b;
+  flex-shrink: 0;
+}
+
+.backhaul-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 750;
+  color: #17251d;
+}
+
+.backhaul-header p {
+  margin: 5px 0 0;
+  color: #6d7a72;
+  font-size: 14px;
+}
+
+.backhaul-header-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 15px;
+  border-radius: 999px;
+  background: #edf8f1;
+  color: #16784a;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+/* =========================================
+   COMMON SECTION
+========================================= */
+
+.backhaul-search-card,
+.backhaul-results-section {
+  background: #ffffff;
+  border: 1px solid #e5ebe7;
+  border-radius: 18px;
+  box-shadow: 0 5px 18px rgba(28, 48, 37, 0.05);
+}
+
+.backhaul-search-card {
+  padding: 25px;
+  margin-bottom: 24px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.section-heading-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #eef8f2;
+  color: #198754;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 19px;
+  color: #1d2a23;
+}
+
+.section-heading p {
+  margin: 4px 0 0;
+  color: #758078;
+  font-size: 13px;
+}
+
+/* =========================================
+   SEARCH FORM
+========================================= */
+
+.backhaul-form-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    42px
+    minmax(0, 1fr)
+    minmax(220px, 0.85fr);
+  align-items: end;
+  gap: 14px;
+}
+
+.backhaul-field {
+  min-width: 0;
+}
+
+.backhaul-field label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  color: #455149;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.backhaul-field select,
+.backhaul-field input {
+  width: 100%;
+  height: 46px;
+  padding: 0 13px;
+  border: 1px solid #dce4df;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #27342c;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s ease;
+  box-sizing: border-box;
+}
+
+.backhaul-field select:focus,
+.backhaul-field input:focus {
+  border-color: #2a9d62;
+  box-shadow: 0 0 0 3px rgba(42, 157, 98, 0.1);
+}
+
+.backhaul-route-arrow {
+  width: 42px;
+  height: 46px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #16834b;
+  background: #eef8f2;
+}
+
+/* =========================================
+   QUANTITY
+========================================= */
+
+.quantity-input-group {
+  display: grid;
+  grid-template-columns: 1fr 100px;
+}
+
+.quantity-input-group input {
+  border-radius: 10px 0 0 10px;
+}
+
+.quantity-input-group select {
+  border-radius: 0 10px 10px 0;
+  border-left: 0;
+}
+
+/* =========================================
+   TRANSPORT CHOICE
+========================================= */
+
+.transport-choice-section {
+  margin-top: 25px;
+}
+
+.transport-choice-title {
+  margin-bottom: 10px;
+  color: #455149;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.transport-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.transport-choice-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 16px;
+  border: 1px solid #dfe7e2;
+  border-radius: 13px;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.transport-choice-card:hover {
+  border-color: #8fc7a8;
+  background: #fbfefc;
+}
+
+.transport-choice-card.active {
+  border-color: #2a9d62;
+  background: #f1faf5;
+  box-shadow: 0 0 0 2px rgba(42, 157, 98, 0.08);
+}
+
+.transport-choice-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #edf8f1;
+  color: #198754;
+  flex-shrink: 0;
+}
+
+.transport-choice-card strong {
+  display: block;
+  color: #26342c;
+  font-size: 14px;
+}
+
+.transport-choice-card span {
+  display: block;
+  margin-top: 3px;
+  color: #78837d;
+  font-size: 12px;
+}
+
+.transport-selected-icon {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  color: #198754;
+}
+
+/* =========================================
+   SEARCH BUTTON
+========================================= */
+
+.backhaul-search-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
+.backhaul-search-button {
+  min-height: 45px;
+  padding: 0 19px;
+  border: 0;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #198754;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.backhaul-search-button:hover {
+  background: #147445;
+}
+
+.backhaul-search-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.spin {
+  animation: backhaul-spin 1s linear infinite;
+}
+
+@keyframes backhaul-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================
+   MESSAGE
+========================================= */
+
+.backhaul-message {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 9px;
+  background: #f4f8f5;
+  color: #536159;
+  font-size: 13px;
+}
+
+/* =========================================
+   SELECTED TRANSPORT
+========================================= */
+
+.selected-transport-card {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 24px;
+  padding: 16px 18px;
+  border: 1px solid #b9dfc7;
+  border-radius: 14px;
+  background: #f0faf4;
+}
+
+.selected-transport-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #198754;
+  background: #ffffff;
+}
+
+.selected-transport-card strong {
+  color: #205b3b;
+  font-size: 14px;
+}
+
+.selected-transport-card p {
+  margin: 3px 0 0;
+  color: #617067;
+  font-size: 12px;
+}
+
+/* =========================================
+   RESULTS
+========================================= */
+
+.backhaul-results-section {
+  padding: 25px;
+  margin-bottom: 24px;
+}
+
+.backhaul-empty-state {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 35px;
+  border: 1px dashed #d7e2db;
+  border-radius: 14px;
+  background: #fbfdfb;
+  text-align: center;
+}
+
+.backhaul-empty-icon {
+  width: 66px;
+  height: 66px;
+  margin-bottom: 14px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #edf8f1;
+  color: #198754;
+}
+
+.backhaul-empty-state h3 {
+  margin: 0;
+  color: #334139;
+  font-size: 16px;
+}
+
+.backhaul-empty-state p {
+  max-width: 440px;
+  margin: 7px 0 0;
+  color: #7b857f;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* =========================================
+   INFO CARDS
+========================================= */
+
+.backhaul-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.backhaul-info-card {
+  display: flex;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid #e5ebe7;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.backhaul-info-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f8f3;
+  color: #198754;
+  flex-shrink: 0;
+}
+
+.backhaul-info-card strong {
+  color: #334139;
+  font-size: 13px;
+}
+
+.backhaul-info-card p {
+  margin: 5px 0 0;
+  color: #78837c;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1050px) {
+  .backhaul-form-grid {
+    grid-template-columns:
+      1fr
+      42px
+      1fr;
+  }
+
+  .backhaul-form-grid
+    .backhaul-field:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .backhaul-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .backhaul-page {
+    padding: 18px;
+  }
+
+  .backhaul-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .backhaul-header-badge {
+    align-self: flex-start;
+  }
+
+  .backhaul-header h1 {
+    font-size: 23px;
+  }
+
+  .backhaul-search-card,
+  .backhaul-results-section {
+    padding: 18px;
+  }
+
+  .backhaul-form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .backhaul-route-arrow {
+    transform: rotate(90deg);
+    align-self: center;
+  }
+
+  .transport-choice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .backhaul-search-actions {
+    justify-content: stretch;
+  }
+
+  .backhaul-search-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 450px) {
+  .backhaul-page {
+    padding: 13px;
+  }
+
+  .backhaul-title-row {
+    align-items: flex-start;
+  }
+
+  .backhaul-title-icon {
+    width: 45px;
+    height: 45px;
+  }
+
+  .backhaul-header h1 {
+    font-size: 20px;
+  }
+
+  .quantity-input-group {
+    grid-template-columns: 1fr 88px;
+  }
+}

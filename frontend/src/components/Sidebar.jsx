@@ -1,233 +1,248 @@
 import {
   LayoutDashboard,
   Sprout,
-  TrendingUp,
+  Store,
   Gavel,
   CloudSun,
   Bot,
-  BookOpen,
-  Settings,
-  ShoppingBasket,
-  ReceiptText,
-  CreditCard,
-  Users,
-  Store,
   WalletCards,
-  Handshake,
   FileText,
   Warehouse,
-  ClipboardList,
+  Settings,
+  Users,
+  Truck,
+  CreditCard,
 } from 'lucide-react';
 
-import { NavLink } from 'react-router-dom';
+import {
+  NavLink,
+} from 'react-router-dom';
 
-import { useAuth } from '../context/AuthContext';
+import {
+  useAuth,
+} from '../context/AuthContext';
 
 import './Sidebar.css';
 
-const farmerMenuItems = [
-  {
-    label: 'Dashboard',
-    icon: LayoutDashboard,
-    path: '/dashboard',
-  },
-  {
-    label: 'Crops',
-    icon: Sprout,
-    path: '/crops',
-  },
-  {
-    label: 'Market',
-    icon: TrendingUp,
-    path: '/market',
-  },
-  {
-    label: 'Bids',
-    icon: Gavel,
-    path: '/bids',
-  },
-  {
-    label: 'Weather',
-    icon: CloudSun,
-    path: '/weather',
-  },
-  {
-    label: 'AI Assistant',
-    icon: Bot,
-    path: '/ai-assistant',
-  },
-  {
-    label: 'Passbook',
-    icon: BookOpen,
-    path: '/passbook',
-  },
-  {
-    label: 'Parchi',
-    icon: ReceiptText,
-    path: '/parchi',
-  },
-  {
-    label: 'Storage',
-    icon: Warehouse,
-    path: '/storage',
-  },
-];
-
-const traderMenuItems = [
-  {
-    label: 'Dashboard',
-    icon: LayoutDashboard,
-    path: '/trader',
-  },
-  {
-    label: 'Find Crops',
-    icon: ShoppingBasket,
-    path: '/trader/crops',
-  },
-  {
-    label: 'Market',
-    icon: TrendingUp,
-    path: '/market',
-  },
-  {
-    label: 'My Bids',
-    icon: Gavel,
-    path: '/trader/bids',
-  },
-  {
-    label: 'Purchases',
-    icon: Handshake,
-    path: '/trader/purchases',
-  },
-  {
-    label: 'Parchi',
-    icon: ReceiptText,
-    path: '/parchi',
-  },
-  {
-    label: 'Storage',
-    icon: Warehouse,
-    path: '/storage',
-  },
-  {
-    label: 'Payments',
-    icon: CreditCard,
-    path: '/payments',
-  },
-  {
-    label: 'Passbook',
-    icon: BookOpen,
-    path: '/passbook',
-  },
-];
-
-const adminMenuItems = [
-  {
-    label: 'Dashboard',
-    icon: LayoutDashboard,
-    path: '/admin',
-  },
-  {
-    label: 'Users',
-    icon: Users,
-    path: '/admin/users',
-  },
-  {
-    label: 'Markets',
-    icon: Store,
-    path: '/admin/markets',
-  },
-  {
-    label: 'Crops',
-    icon: Sprout,
-    path: '/admin/crops',
-  },
-  {
-    label: 'Bids',
-    icon: Gavel,
-    path: '/admin/bids',
-  },
-  {
-    label: 'Parchi',
-    icon: FileText,
-    path: '/admin/parchi',
-  },
-  {
-    label: 'Storage Requests',
-    icon: ClipboardList,
-    path: '/admin/storage-requests',
-  },
-  {
-    label: 'Transactions',
-    icon: WalletCards,
-    path: '/admin/transactions',
-  },
-  {
-    label: 'Payments',
-    icon: CreditCard,
-    path: '/admin/payments',
-  },
-];
-
 function Sidebar() {
-  const { user } = useAuth();
+  const {
+    user,
+  } = useAuth();
 
-  const role = user?.role || 'farmer';
+  const farmerMenu = [
+    {
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      path: '/dashboard',
+    },
+    {
+      label: 'Crops',
+      icon: Sprout,
+      path: '/crops',
+    },
+    {
+      label: 'Market',
+      icon: Store,
+      path: '/market',
+    },
+    {
+      label: 'Bids',
+      icon: Gavel,
+      path: '/bids',
+    },
+    {
+      label: 'Weather',
+      icon: CloudSun,
+      path: '/weather',
+    },
+    {
+      label: 'AI Assistant',
+      icon: Bot,
+      path: '/ai-assistant',
+    },
+    {
+      label: 'Passbook',
+      icon: WalletCards,
+      path: '/passbook',
+    },
+    {
+      label: 'Parchi',
+      icon: FileText,
+      path: '/parchi',
+    },
+    {
+      label: 'Backhaul',
+      icon: Truck,
+      path: '/backhaul',
+    },
+    {
+      label: 'Storage',
+      icon: Warehouse,
+      path: '/storage',
+    },
+  ];
 
-  let menuItems = farmerMenuItems;
+  const traderMenu = [
+    {
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      path: '/trader',
+    },
+    {
+      label: 'Market',
+      icon: Store,
+      path: '/market',
+    },
+    {
+      label: 'Bids',
+      icon: Gavel,
+      path: '/bids',
+    },
+    {
+      label: 'Parchi',
+      icon: FileText,
+      path: '/parchi',
+    },
+    {
+      label: 'Backhaul',
+      icon: Truck,
+      path: '/trader/backhaul',
+    },
+    {
+      label: 'Transactions',
+      icon: WalletCards,
+      path: '/passbook',
+    },
+    {
+      label: 'Payments',
+      icon: CreditCard,
+      path: '/parchi',
+    },
+  ];
 
-  if (role === 'trader') {
-    menuItems = traderMenuItems;
+  const adminMenu = [
+    {
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      path: '/admin',
+    },
+    {
+      label: 'Users',
+      icon: Users,
+      path: '/admin/users',
+    },
+    {
+      label: 'Markets',
+      icon: Store,
+      path: '/admin/markets',
+    },
+    {
+      label: 'Crops',
+      icon: Sprout,
+      path: '/admin/crops',
+    },
+    {
+      label: 'Bids',
+      icon: Gavel,
+      path: '/admin/bids',
+    },
+    {
+      label: 'Parchi',
+      icon: FileText,
+      path: '/admin/parchi',
+    },
+    {
+      label: 'Backhaul',
+      icon: Truck,
+      path: '/trader/backhaul',
+    },
+    {
+      label: 'Storage',
+      icon: Warehouse,
+      path: '/storage',
+    },
+    {
+      label: 'Transactions',
+      icon: WalletCards,
+      path: '/admin/transactions',
+    },
+    {
+      label: 'Payments',
+      icon: CreditCard,
+      path: '/admin/payments',
+    },
+  ];
+
+  let menu = farmerMenu;
+
+  if (user?.role === 'trader') {
+    menu = traderMenu;
   }
 
-  if (role === 'admin') {
-    menuItems = adminMenuItems;
+  if (user?.role === 'admin') {
+    menu = adminMenu;
   }
 
   return (
     <aside className="sidebar">
 
-      <div className="sidebar-menu">
+      <nav className="sidebar-nav">
 
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-
-          return (
+        {menu.map(
+          ({
+            label,
+            icon: Icon,
+            path,
+          }) => (
             <NavLink
-              key={item.label}
-              to={item.path}
+              key={path}
+              to={path}
               className={({ isActive }) =>
-                `sidebar-item ${
-                  isActive ? 'active' : ''
+                `sidebar-link ${
+                  isActive
+                    ? 'active'
+                    : ''
                 }`
               }
             >
-              <Icon size={19} />
+
+              <Icon
+                size={19}
+                strokeWidth={1.8}
+              />
 
               <span>
-                {item.label}
+                {label}
               </span>
-            </NavLink>
-          );
-        })}
 
-      </div>
+            </NavLink>
+          ),
+        )}
+
+      </nav>
 
       <div className="sidebar-bottom">
 
         <NavLink
           to="/settings"
           className={({ isActive }) =>
-            `sidebar-item ${
-              isActive ? 'active' : ''
+            `sidebar-link ${
+              isActive
+                ? 'active'
+                : ''
             }`
           }
         >
-          <Settings size={19} />
+
+          <Settings
+            size={19}
+            strokeWidth={1.8}
+          />
 
           <span>
             Settings
           </span>
+
         </NavLink>
 
       </div>
