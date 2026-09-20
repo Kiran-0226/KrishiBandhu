@@ -17,6 +17,7 @@ import Weather from './pages/Weather';
 import AIAssistant from './pages/AIAssistant';
 import Passbook from './pages/Passbook';
 import Parchi from './pages/Parchi';
+import Storage from './pages/Storage';
 import Settings from './pages/Settings';
 
 import Login from './pages/Login';
@@ -210,7 +211,7 @@ const RoleRedirect = () => {
 };
 
 /* -------------------------------- */
-/* Application                     */
+/* Application                      */
 /* -------------------------------- */
 
 function App() {
@@ -241,6 +242,7 @@ function App() {
           }
         />
 
+
         {/* ============================== */}
         {/* FARMER DASHBOARD               */}
         {/* ============================== */}
@@ -257,6 +259,7 @@ function App() {
             </RoleRoute>
           }
         />
+
 
         {/* ============================== */}
         {/* FARMER FEATURES                */}
@@ -336,8 +339,9 @@ function App() {
           }
         />
 
+
         {/* ============================== */}
-        {/* PARCHI                          */}
+        {/* PARCHI                         */}
         {/* ============================== */}
 
         <Route
@@ -351,6 +355,27 @@ function App() {
           }
         />
 
+
+        {/* ============================== */}
+        {/* STORAGE & WAREHOUSES           */}
+        {/* ============================== */}
+
+        <Route
+          path="/storage"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Storage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+
+        {/* ============================== */}
+        {/* SETTINGS                       */}
+        {/* ============================== */}
+
         <Route
           path="/settings"
           element={
@@ -361,6 +386,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
 
         {/* ============================== */}
         {/* TRADER DASHBOARD               */}
@@ -379,6 +405,7 @@ function App() {
           }
         />
 
+
         {/* ============================== */}
         {/* ADMIN DASHBOARD                */}
         {/* ============================== */}
@@ -395,6 +422,7 @@ function App() {
             </RoleRoute>
           }
         />
+
 
         {/* ============================== */}
         {/* ADMIN USERS                    */}
@@ -413,6 +441,7 @@ function App() {
           }
         />
 
+
         {/* ============================== */}
         {/* ROOT                           */}
         {/* ============================== */}
@@ -425,6 +454,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
 
         {/* ============================== */}
         {/* UNKNOWN ROUTES                 */}

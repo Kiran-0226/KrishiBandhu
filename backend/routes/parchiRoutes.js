@@ -4,63 +4,216 @@ const {
   createParchi,
   getParchis,
   getParchiById,
+  updateParchiBankDetails,
+  submitParchiTransfer,
+  uploadParchiReceipt,
+  confirmParchiPayment,
   updateParchiPaymentStatus,
 } = require('../controllers/parchiController');
+
+const {
+  verifyParchiReceipt,
+} = require('../controllers/parchiReceiptController');
 
 const {
   protect,
   requireRole,
 } = require('../middleware/authMiddleware');
 
+const {
+  uploadParchiReceipt:
+    uploadReceiptMiddleware,
+} = require('../middleware/uploadMiddleware');
+
 const router = express.Router();
 
 /*
- * Every Parchi operation requires authentication.
+ * ==========================================
+ * Authentication
+ * ==========================================
+ *
+ * Every Parchi endpoint requires login.
  */
+
 router.use(protect);
 
 /*
- * Get Parchis
+ * ==========================================
+ * Create Parchi
+ * ==========================================
  *
- * Farmer → their own Parchis
- * Trader → their own Parchis
- * Admin  → all Parchis
+ * Farmer only.
+ *
+ * POST
+ * /api/parchi
  */
+
+router.post(
+  '/',
+  requireRole('farmer'),
+  createParchi,
+);
+
+/*
+ * ==========================================
+ * Get All Accessible Parchis
+ * ==========================================
+ *
+ * Farmer → own Parchis
+ * Trader → own Parchis
+ * Admin → all Parchis
+ *
+ * GET
+ * /api/parchi
+ */
+
 router.get(
   '/',
   getParchis,
 );
 
 /*
- * Generate Parchi
+ * ==========================================
+ * Get Single Parchi
+ * ==========================================
  *
- * Only the farmer who owns the accepted bid's
- * crop, or an admin, can generate it.
+ * GET
+ * /api/parchi/:id
  */
-router.post(
-  '/',
-  requireRole('farmer', 'admin'),
-  createParchi,
-);
 
-/*
- * Get one Parchi
- *
- * Ownership is additionally checked
- * inside the controller.
- */
 router.get(
   '/:id',
   getParchiById,
 );
 
 /*
- * Update payment status
+ * ==========================================
+ * Farmer Bank Details
+ * ==========================================
  *
- * For now this is restricted to Admin.
- * Later, the real payment verification/webhook
- * flow will update this automatically.
+ * Farmer provides the bank account / UPI
+ * information where the trader should send
+ * the payment.
+ *
+ * PATCH
+ * /api/parchi/:id/bank-details
  */
+
+router.patch(
+  '/:id/bank-details',
+  requireRole('farmer'),
+  updateParchiBankDetails,
+);
+
+/*
+ * ==========================================
+ * Trader Transfer Submission
+ * ==========================================
+ *
+ * Trader manually transfers the money
+ * outside KrishiBandhu and records the
+ * transfer reference here.
+ *
+ * PATCH
+ * /api/parchi/:id/transfer
+ */
+
+router.patch(
+  '/:id/transfer',
+  requireRole('trader'),
+  submitParchiTransfer,
+);
+
+/*
+ * ==========================================
+ * Trader Receipt Upload
+ * ==========================================
+ *
+ * Trader uploads the bank/UPI transfer
+ * receipt.
+ *
+ * POST
+ * /api/parchi/:id/receipt
+ *
+ * multipart/form-data
+ *
+ * Field name:
+ * receipt
+ */
+
+router.post(
+  '/:id/receipt',
+  requireRole('trader'),
+  uploadReceiptMiddleware.single(
+    'receipt',
+  ),
+  uploadParchiReceipt,
+);
+
+/*
+ * ==========================================
+ * AI Receipt Verification
+ * ==========================================
+ *
+ * Trader or Admin can request AI analysis.
+ *
+ * POST
+ * /api/parchi/:id/receipt/verify
+ *
+ * IMPORTANT:
+ *
+ * AI verification does NOT complete payment.
+ *
+ * Farmer confirmation is still required.
+ */
+
+router.post(
+  '/:id/receipt/verify',
+  requireRole(
+    'trader',
+    'admin',
+  ),
+  verifyParchiReceipt,
+);
+
+/*
+ * ==========================================
+ * Farmer Final Payment Confirmation
+ * ==========================================
+ *
+ * Farmer confirms whether the payment has
+ * actually been received.
+ *
+ * POST
+ * /api/parchi/:id/confirm-payment
+ *
+ * IMPORTANT:
+ *
+ * This is the final step that can mark the
+ * Parchi payment as successful.
+ */
+
+router.post(
+  '/:id/confirm-payment',
+  requireRole('farmer'),
+  confirmParchiPayment,
+);
+
+/*
+ * ==========================================
+ * Legacy/Admin Payment Status
+ * ==========================================
+ *
+ * TEMPORARY compatibility endpoint.
+ *
+ * We will remove/restrict this later when
+ * the final farmer-confirmation workflow
+ * is fully integrated.
+ *
+ * Do NOT use this endpoint to mark a real
+ * payment as successful.
+ */
+
 router.patch(
   '/:id/payment',
   requireRole('admin'),

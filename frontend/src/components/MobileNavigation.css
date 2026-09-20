@@ -3,21 +3,22 @@
 }
 
 @media (max-width: 800px) {
+
   .mobile-navigation {
     position: fixed;
 
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
+    left: 8px;
+    right: 8px;
+    bottom: 10px;
 
     height: 64px;
 
-    padding: 6px;
+    padding: 5px;
 
     display: grid;
 
     grid-template-columns:
-      repeat(5, 1fr);
+      repeat(6, minmax(0, 1fr));
 
     align-items: center;
 
@@ -36,16 +37,21 @@
     z-index: 2000;
   }
 
+
   .mobile-nav-item {
+    min-width: 0;
+
     height: 52px;
 
     display: flex;
+
     flex-direction: column;
 
     align-items: center;
+
     justify-content: center;
 
-    gap: 3px;
+    gap: 2px;
 
     border: none;
 
@@ -55,13 +61,39 @@
 
     color: var(--text-muted);
 
-    font-size: 10px;
+    font-size: 9px;
+
     font-weight: 500;
+
+    text-decoration: none;
+
+    white-space: nowrap;
 
     transition:
       background 0.2s ease,
-      color 0.2s ease;
+      color 0.2s ease,
+      transform 0.2s ease;
   }
+
+
+  .mobile-nav-item svg {
+    flex-shrink: 0;
+
+    width: 19px;
+    height: 19px;
+  }
+
+
+  .mobile-nav-item span {
+    max-width: 100%;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+  }
+
 
   .mobile-nav-item.active {
     background: var(--primary-light);
@@ -71,7 +103,38 @@
     font-weight: 600;
   }
 
+
   .mobile-nav-item:active {
     transform: scale(0.96);
+  }
+}
+
+
+/* ==========================================
+   Smaller Phones
+========================================== */
+
+@media (max-width: 380px) {
+
+  .mobile-navigation {
+    left: 5px;
+    right: 5px;
+
+    padding: 4px;
+  }
+
+
+  .mobile-nav-item {
+    height: 53px;
+
+    font-size: 8px;
+
+    gap: 1px;
+  }
+
+
+  .mobile-nav-item svg {
+    width: 18px;
+    height: 18px;
   }
 }

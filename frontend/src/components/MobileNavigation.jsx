@@ -3,6 +3,7 @@ import {
   Sprout,
   TrendingUp,
   ReceiptText,
+  Warehouse,
   UserCircle,
 } from 'lucide-react';
 
@@ -30,6 +31,11 @@ const items = [
     label: 'Parchi',
     icon: ReceiptText,
     path: '/parchi',
+  },
+  {
+    label: 'Storage',
+    icon: Warehouse,
+    path: '/storage',
   },
   {
     label: 'Profile',

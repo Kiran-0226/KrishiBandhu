@@ -16,3 +16,5 @@ backups/
 
 # One-time admin creation script
 createAdmin.js
+
+uploads/

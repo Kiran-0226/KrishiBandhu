@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 
 const connectDB = require('./config/db');
 
@@ -48,6 +49,12 @@ const saleListingRoutes = require('./routes/saleListingRoutes');
 // ==========================================
 
 const parchiRoutes = require('./routes/parchiRoutes');
+
+// ==========================================
+// Storage & Warehouse Routes
+// ==========================================
+
+const storageRoutes = require('./routes/storageRoutes');
 
 // ==========================================
 // Create Express App
@@ -95,6 +102,30 @@ app.use(
 );
 
 app.use(morgan('dev'));
+
+// ==========================================
+// Uploaded Files
+// ==========================================
+//
+// Receipts uploaded by traders are stored in:
+//
+// backend/uploads/parchi-receipts/
+//
+// They can be accessed through:
+//
+// /uploads/parchi-receipts/<filename>
+//
+// IMPORTANT:
+// These files are already excluded from Git
+// through .gitignore.
+//
+
+app.use(
+  '/uploads',
+  express.static(
+    path.join(__dirname, 'uploads'),
+  ),
+);
 
 // ==========================================
 // Basic API Routes
@@ -234,6 +265,15 @@ app.use(
 );
 
 // ==========================================
+// Storage & Warehouses
+// ==========================================
+
+app.use(
+  '/api/storage',
+  storageRoutes,
+);
+
+// ==========================================
 // 404 Handler
 // ==========================================
 
@@ -332,6 +372,14 @@ app.listen(PORT, () => {
 
   console.log(
     `📄 Parchi: http://localhost:${PORT}/api/parchi`,
+  );
+
+  console.log(
+    `🏭 Storage & Warehouses: http://localhost:${PORT}/api/storage`,
+  );
+
+  console.log(
+    `📎 Uploads: http://localhost:${PORT}/uploads`,
   );
 
   console.log('');

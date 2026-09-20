@@ -15,6 +15,7 @@ import {
   WalletCards,
   Handshake,
   FileText,
+  Warehouse,
 } from 'lucide-react';
 
 import { NavLink } from 'react-router-dom';
@@ -64,6 +65,11 @@ const farmerMenuItems = [
     icon: ReceiptText,
     path: '/parchi',
   },
+  {
+    label: 'Storage',
+    icon: Warehouse,
+    path: '/storage',
+  },
 ];
 
 const traderMenuItems = [
@@ -96,6 +102,11 @@ const traderMenuItems = [
     label: 'Parchi',
     icon: ReceiptText,
     path: '/parchi',
+  },
+  {
+    label: 'Storage',
+    icon: Warehouse,
+    path: '/storage',
   },
   {
     label: 'Payments',
@@ -139,6 +150,11 @@ const adminMenuItems = [
     label: 'Parchi',
     icon: FileText,
     path: '/admin/parchi',
+  },
+  {
+    label: 'Storage',
+    icon: Warehouse,
+    path: '/storage',
   },
   {
     label: 'Transactions',
