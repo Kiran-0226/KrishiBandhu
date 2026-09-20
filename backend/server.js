@@ -47,11 +47,43 @@ app.use(helmet());
 // CORS
 // ==========================================
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://krishibandhu-frontend.onrender.com',
+];
+
+if (process.env.FRONTEND_URL) {
+  const configuredOrigins = process.env.FRONTEND_URL
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  allowedOrigins.push(...configuredOrigins);
+}
+
 app.use(
   cors({
-    origin:
-      process.env.FRONTEND_URL ||
-      'http://localhost:5173',
+    origin: (origin, callback) => {
+      // Allow requests without an Origin header
+      // such as server-to-server requests and health checks.
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.warn(
+        `⚠️ CORS blocked request from origin: ${origin}`,
+      );
+
+      return callback(
+        new Error('Not allowed by CORS'),
+      );
+    },
+    credentials: true,
   }),
 );
 
@@ -394,6 +426,13 @@ app.listen(
     console.log(
       `📎 Uploads: http://localhost:${PORT}/uploads`,
     );
+    console.log('');
+    console.log(
+      '🌐 Allowed CORS Origins:',
+    );
+    allowedOrigins.forEach((origin) => {
+      console.log(`   ✓ ${origin}`);
+    });
     console.log('');
   },
 );
