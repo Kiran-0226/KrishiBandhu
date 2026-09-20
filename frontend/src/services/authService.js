@@ -1,4 +1,10 @@
-const API_BASE_URL = 'http://localhost:5000/api/auth';
+import API_URL from '../config/api';
+
+// ==========================================
+// AUTH API BASE URL
+// ==========================================
+
+const API_BASE_URL = `${API_URL}/auth`;
 
 // ==========================================
 // REGISTER

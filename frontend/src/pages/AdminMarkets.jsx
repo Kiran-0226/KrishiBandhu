@@ -20,10 +20,11 @@ import {
 
 import { useAuth } from '../context/AuthContext';
 
+import API_URL from '../config/api';
+
 import './AdminMarkets.css';
 
-const API_BASE_URL =
-  'http://localhost:5000/api';
+const API_BASE_URL = API_URL;
 
 function AdminMarkets() {
   const {
@@ -664,6 +665,7 @@ function AdminMarkets() {
           </div>
 
           <div>
+
             <strong>
               {statsLoading
                 ? '—'
@@ -673,6 +675,7 @@ function AdminMarkets() {
             <span>
               Total Markets
             </span>
+
           </div>
 
         </div>
@@ -684,6 +687,7 @@ function AdminMarkets() {
           </div>
 
           <div>
+
             <strong>
               {statsLoading
                 ? '—'
@@ -693,6 +697,7 @@ function AdminMarkets() {
             <span>
               Official MSAMB
             </span>
+
           </div>
 
         </div>
@@ -704,6 +709,7 @@ function AdminMarkets() {
           </div>
 
           <div>
+
             <strong>
               {statsLoading
                 ? '—'
@@ -713,6 +719,7 @@ function AdminMarkets() {
             <span>
               Pending Review
             </span>
+
           </div>
 
         </div>
@@ -724,6 +731,7 @@ function AdminMarkets() {
           </div>
 
           <div>
+
             <strong>
               {statsLoading
                 ? '—'
@@ -733,6 +741,7 @@ function AdminMarkets() {
             <span>
               Verified
             </span>
+
           </div>
 
         </div>
@@ -744,6 +753,7 @@ function AdminMarkets() {
           </div>
 
           <div>
+
             <strong>
               {statsLoading
                 ? '—'
@@ -753,6 +763,7 @@ function AdminMarkets() {
             <span>
               User Submitted
             </span>
+
           </div>
 
         </div>
@@ -1142,6 +1153,7 @@ function AdminMarkets() {
                         <td>
 
                           <span className="admin-market-district">
+
                             <MapPin
                               size={13}
                             />
@@ -1208,11 +1220,13 @@ function AdminMarkets() {
                         <td>
 
                           <span className="admin-market-date">
+
                             {
                               formatDate(
                                 market.createdAt,
                               )
                             }
+
                           </span>
 
                         </td>

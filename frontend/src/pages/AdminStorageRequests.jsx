@@ -21,10 +21,11 @@ import {
 
 import { useAuth } from '../context/AuthContext';
 
+import API_URL from '../config/api';
+
 import './AdminStorageRequests.css';
 
-const API_BASE_URL =
-  'http://localhost:5000/api';
+const API_BASE_URL = API_URL;
 
 function AdminStorageRequests() {
   const { token } = useAuth();
@@ -477,6 +478,7 @@ function AdminStorageRequests() {
           </div>
 
           <div>
+
             <strong>
               {counts.all}
             </strong>
@@ -484,6 +486,7 @@ function AdminStorageRequests() {
             <span>
               All Requests
             </span>
+
           </div>
 
         </button>
@@ -512,6 +515,7 @@ function AdminStorageRequests() {
           </div>
 
           <div>
+
             <strong>
               {counts.pending}
             </strong>
@@ -519,6 +523,7 @@ function AdminStorageRequests() {
             <span>
               Pending
             </span>
+
           </div>
 
         </button>
@@ -547,6 +552,7 @@ function AdminStorageRequests() {
           </div>
 
           <div>
+
             <strong>
               {counts.approved}
             </strong>
@@ -554,6 +560,7 @@ function AdminStorageRequests() {
             <span>
               Approved
             </span>
+
           </div>
 
         </button>
@@ -582,6 +589,7 @@ function AdminStorageRequests() {
           </div>
 
           <div>
+
             <strong>
               {counts.rejected}
             </strong>
@@ -589,6 +597,7 @@ function AdminStorageRequests() {
             <span>
               Rejected
             </span>
+
           </div>
 
         </button>
@@ -661,6 +670,7 @@ function AdminStorageRequests() {
         <div className="admin-storage-panel-header">
 
           <div>
+
             <h2>
               Farmer Requests
             </h2>
@@ -676,6 +686,7 @@ function AdminStorageRequests() {
               {' '}
               shown
             </p>
+
           </div>
 
           <Warehouse
@@ -750,6 +761,7 @@ function AdminStorageRequests() {
                               `admin-storage-status ${request.status}`
                             }
                           >
+
                             <StatusIcon
                               size={14}
                             />
@@ -759,6 +771,7 @@ function AdminStorageRequests() {
                                 request.status,
                               )
                             }
+
                           </span>
 
                         </div>
@@ -795,6 +808,7 @@ function AdminStorageRequests() {
                         />
 
                         <div>
+
                           <span>
                             Farmer
                           </span>
@@ -816,6 +830,7 @@ function AdminStorageRequests() {
                               '—'
                             }
                           </small>
+
                         </div>
 
                       </div>
@@ -827,6 +842,7 @@ function AdminStorageRequests() {
                         />
 
                         <div>
+
                           <span>
                             Storage Facility
                           </span>
@@ -857,6 +873,7 @@ function AdminStorageRequests() {
                               '—'
                             }
                           </small>
+
                         </div>
 
                       </div>
@@ -868,6 +885,7 @@ function AdminStorageRequests() {
                         />
 
                         <div>
+
                           <span>
                             Quantity
                           </span>
@@ -887,6 +905,7 @@ function AdminStorageRequests() {
                             }{' '}
                             kg total
                           </small>
+
                         </div>
 
                       </div>
@@ -898,6 +917,7 @@ function AdminStorageRequests() {
                         />
 
                         <div>
+
                           <span>
                             Storage Period
                           </span>
@@ -919,8 +939,10 @@ function AdminStorageRequests() {
                               request.durationMonths !==
                               1
                                 ? 's'
-                                : ''}
+                                : ''
+                            }
                           </small>
+
                         </div>
 
                       </div>
@@ -932,6 +954,7 @@ function AdminStorageRequests() {
                         />
 
                         <div>
+
                           <span>
                             Estimated Cost
                           </span>
@@ -952,6 +975,7 @@ function AdminStorageRequests() {
                             }
                             /month
                           </small>
+
                         </div>
 
                       </div>
@@ -1006,6 +1030,7 @@ function AdminStorageRequests() {
             <div className="admin-storage-modal-header">
 
               <div>
+
                 <p>
                   Storage Request
                 </p>
@@ -1013,6 +1038,7 @@ function AdminStorageRequests() {
                 <h2>
                   Review Request
                 </h2>
+
               </div>
 
               <button
@@ -1037,12 +1063,15 @@ function AdminStorageRequests() {
               <div className="admin-storage-review-highlight">
 
                 <div className="admin-storage-review-icon">
+
                   <Warehouse
                     size={22}
                   />
+
                 </div>
 
                 <div>
+
                   <strong>
                     {
                       selectedRequest
@@ -1059,6 +1088,7 @@ function AdminStorageRequests() {
                         ?.name
                     }
                   </span>
+
                 </div>
 
               </div>
@@ -1066,6 +1096,7 @@ function AdminStorageRequests() {
               <div className="admin-storage-review-grid">
 
                 <div>
+
                   <span>
                     Farmer
                   </span>
@@ -1078,9 +1109,11 @@ function AdminStorageRequests() {
                       '—'
                     }
                   </strong>
+
                 </div>
 
                 <div>
+
                   <span>
                     Quantity
                   </span>
@@ -1095,9 +1128,11 @@ function AdminStorageRequests() {
                         .unit
                     }
                   </strong>
+
                 </div>
 
                 <div>
+
                   <span>
                     Start Date
                   </span>
@@ -1110,9 +1145,11 @@ function AdminStorageRequests() {
                       )
                     }
                   </strong>
+
                 </div>
 
                 <div>
+
                   <span>
                     Duration
                   </span>
@@ -1128,11 +1165,14 @@ function AdminStorageRequests() {
                         .durationMonths !==
                       1
                         ? 's'
-                        : ''}
+                        : ''
+                    }
                   </strong>
+
                 </div>
 
                 <div>
+
                   <span>
                     Monthly Cost
                   </span>
@@ -1145,9 +1185,11 @@ function AdminStorageRequests() {
                       )
                     }
                   </strong>
+
                 </div>
 
                 <div>
+
                   <span>
                     Total Cost
                   </span>
@@ -1160,6 +1202,7 @@ function AdminStorageRequests() {
                       )
                     }
                   </strong>
+
                 </div>
 
               </div>
@@ -1255,6 +1298,7 @@ function AdminStorageRequests() {
                       )
                     }
                   >
+
                     {actionLoading ===
                     `${selectedRequest._id}-rejected` ? (
                       <RefreshCw
@@ -1268,6 +1312,7 @@ function AdminStorageRequests() {
                     )}
 
                     Reject
+
                   </button>
 
                   <button
@@ -1285,6 +1330,7 @@ function AdminStorageRequests() {
                       )
                     }
                   >
+
                     {actionLoading ===
                     `${selectedRequest._id}-approved` ? (
                       <RefreshCw
@@ -1298,6 +1344,7 @@ function AdminStorageRequests() {
                     )}
 
                     Approve
+
                   </button>
                 </>
               )}

@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
+
 import PageHeader from '../components/PageHeader';
 import AddMarketForm from '../components/AddMarketForm';
+
+import API_URL from '../config/api';
+
 import './Market.css';
 
 function Market() {
@@ -33,7 +37,7 @@ function Market() {
       setMarketError('');
 
       const response = await fetch(
-        'http://localhost:5000/api/markets'
+        `${API_URL}/markets`,
       );
 
       if (!response.ok) {
@@ -44,7 +48,7 @@ function Market() {
 
       if (!result.success) {
         throw new Error(
-          result.message || 'Failed to fetch markets.'
+          result.message || 'Failed to fetch markets.',
         );
       }
 
@@ -53,7 +57,7 @@ function Market() {
       console.error('Fetch markets error:', error);
 
       setMarketError(
-        error.message || 'Unable to load markets.'
+        error.message || 'Unable to load markets.',
       );
     } finally {
       setLoadingMarkets(false);
@@ -70,12 +74,12 @@ function Market() {
       setPriceError('');
 
       const response = await fetch(
-        'http://localhost:5000/api/market-prices'
+        `${API_URL}/market-prices`,
       );
 
       if (!response.ok) {
         throw new Error(
-          'Failed to fetch market prices.'
+          'Failed to fetch market prices.',
         );
       }
 
@@ -83,7 +87,7 @@ function Market() {
 
       if (!result.success) {
         throw new Error(
-          result.message || 'Failed to fetch market prices.'
+          result.message || 'Failed to fetch market prices.',
         );
       }
 
@@ -91,12 +95,12 @@ function Market() {
     } catch (error) {
       console.error(
         'Fetch market prices error:',
-        error
+        error,
       );
 
       setPriceError(
         error.message ||
-          'Unable to load market prices.'
+          'Unable to load market prices.',
       );
     } finally {
       setLoadingPrices(false);
@@ -121,7 +125,7 @@ function Market() {
       ...new Set(
         markets
           .map((market) => market.district)
-          .filter(Boolean)
+          .filter(Boolean),
       ),
     ];
 
@@ -137,7 +141,7 @@ function Market() {
       ...new Set(
         marketPrices
           .map((price) => price.commodity)
-          .filter(Boolean)
+          .filter(Boolean),
       ),
     ];
 
@@ -153,7 +157,7 @@ function Market() {
       ...new Set(
         marketPrices
           .map((price) => price.market?.name)
-          .filter(Boolean)
+          .filter(Boolean),
       ),
     ];
 
@@ -283,7 +287,7 @@ function Market() {
     }
 
     return `₹${Number(price).toLocaleString(
-      'en-IN'
+      'en-IN',
     )}`;
   };
 
@@ -302,7 +306,7 @@ function Market() {
         day: '2-digit',
         month: 'short',
         year: 'numeric',
-      }
+      },
     );
   };
 
@@ -457,7 +461,7 @@ function Market() {
                           value={marketSearch}
                           onChange={(event) =>
                             setMarketSearch(
-                              event.target.value
+                              event.target.value,
                             )
                           }
                         />
@@ -473,7 +477,7 @@ function Market() {
                           value={selectedDistrict}
                           onChange={(event) =>
                             setSelectedDistrict(
-                              event.target.value
+                              event.target.value,
                             )
                           }
                         >
@@ -489,7 +493,7 @@ function Market() {
                               >
                                 {district}
                               </option>
-                            )
+                            ),
                           )}
                         </select>
                       </div>
@@ -566,7 +570,7 @@ function Market() {
                               </span>
                             </div>
                           </div>
-                        )
+                        ),
                       )}
                     </div>
                   )}
@@ -614,7 +618,7 @@ function Market() {
                           value={priceSearch}
                           onChange={(event) =>
                             setPriceSearch(
-                              event.target.value
+                              event.target.value,
                             )
                           }
                         />
@@ -630,7 +634,7 @@ function Market() {
                           value={selectedDistrict}
                           onChange={(event) =>
                             setSelectedDistrict(
-                              event.target.value
+                              event.target.value,
                             )
                           }
                         >
@@ -646,7 +650,7 @@ function Market() {
                               >
                                 {district}
                               </option>
-                            )
+                            ),
                           )}
                         </select>
                       </div>
@@ -661,7 +665,7 @@ function Market() {
                           value={selectedCommodity}
                           onChange={(event) =>
                             setSelectedCommodity(
-                              event.target.value
+                              event.target.value,
                             )
                           }
                         >
@@ -677,7 +681,7 @@ function Market() {
                               >
                                 {commodity}
                               </option>
-                            )
+                            ),
                           )}
                         </select>
                       </div>
@@ -692,7 +696,7 @@ function Market() {
                           value={selectedMarket}
                           onChange={(event) =>
                             setSelectedMarket(
-                              event.target.value
+                              event.target.value,
                             )
                           }
                         >
@@ -708,7 +712,7 @@ function Market() {
                               >
                                 {marketName}
                               </option>
-                            )
+                            ),
                           )}
                         </select>
                       </div>
@@ -810,7 +814,7 @@ function Market() {
 
                                 <strong>
                                   {formatPrice(
-                                    price.minimumPrice
+                                    price.minimumPrice,
                                   )}
                                 </strong>
                               </div>
@@ -822,7 +826,7 @@ function Market() {
 
                                 <strong>
                                   {formatPrice(
-                                    price.modalPrice
+                                    price.modalPrice,
                                   )}
                                 </strong>
                               </div>
@@ -834,7 +838,7 @@ function Market() {
 
                                 <strong>
                                   {formatPrice(
-                                    price.maximumPrice
+                                    price.maximumPrice,
                                   )}
                                 </strong>
                               </div>
@@ -852,7 +856,7 @@ function Market() {
                               <span>
                                 📅{' '}
                                 {formatDate(
-                                  price.priceDate
+                                  price.priceDate,
                                 )}
                               </span>
                             </div>
@@ -865,7 +869,7 @@ function Market() {
                               </strong>
                             </div>
                           </div>
-                        )
+                        ),
                       )}
                     </div>
                   )}

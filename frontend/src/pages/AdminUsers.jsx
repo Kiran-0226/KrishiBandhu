@@ -22,10 +22,11 @@ import {
 
 import { useAuth } from '../context/AuthContext';
 
+import API_URL from '../config/api';
+
 import './AdminUsers.css';
 
-const API_BASE_URL =
-  'http://localhost:5000/api';
+const API_BASE_URL = API_URL;
 
 function AdminUsers() {
   const {
@@ -681,6 +682,7 @@ function AdminUsers() {
                 )
               }
             >
+
               <option value="all">
                 All Roles
               </option>
@@ -719,6 +721,7 @@ function AdminUsers() {
                 )
               }
             >
+
               <option value="all">
                 All Status
               </option>
@@ -745,6 +748,7 @@ function AdminUsers() {
               loading
             }
           >
+
             <RefreshCw
               size={16}
               className={
@@ -755,6 +759,7 @@ function AdminUsers() {
             />
 
             Refresh
+
           </button>
 
         </div>
@@ -936,6 +941,7 @@ function AdminUsers() {
                             <span
                               className={`admin-role-badge ${item.role}`}
                             >
+
                               {getRoleIcon(
                                 item.role,
                               )}
@@ -943,6 +949,7 @@ function AdminUsers() {
                               {getRoleLabel(
                                 item.role,
                               )}
+
                             </span>
                           ) : (
                             <div className="admin-role-editor">

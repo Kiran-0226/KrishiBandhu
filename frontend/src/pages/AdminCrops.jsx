@@ -22,10 +22,12 @@ import {
 
 import { useAuth } from '../context/AuthContext';
 
+import API_URL from '../config/api';
+
 import './AdminCrops.css';
 
 const API_BASE_URL =
-  'http://localhost:5000/api';
+  API_URL;
 
 const STATUS_OPTIONS = [
   'all',

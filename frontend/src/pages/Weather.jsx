@@ -16,9 +16,11 @@ import {
   Wind,
 } from 'lucide-react';
 
+import API_URL from '../config/api';
+
 import './Weather.css';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = API_URL;
 
 const quickCities = [
   'Pune',
@@ -100,7 +102,7 @@ const Weather = () => {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/weather?city=${encodeURIComponent(
+        `${API_BASE_URL}/weather?city=${encodeURIComponent(
           selectedCity.trim(),
         )}`,
       );
@@ -185,6 +187,7 @@ const Weather = () => {
         >
           <div className="weather-search-input">
             <Search size={19} />
+
             <input
               type="text"
               value={searchCity}
@@ -225,8 +228,12 @@ const Weather = () => {
               size={30}
               className="weather-spin"
             />
+
             <h3>Loading weather...</h3>
-            <p>Fetching the latest weather information.</p>
+
+            <p>
+              Fetching the latest weather information.
+            </p>
           </div>
         )}
 
@@ -298,6 +305,7 @@ const Weather = () => {
 
               <div className="weather-feels">
                 <span>Feels like</span>
+
                 <strong>
                   {Math.round(weather.feelsLike)}°C
                 </strong>
@@ -323,6 +331,7 @@ const Weather = () => {
 
                 <div>
                   <span>Wind Speed</span>
+
                   <strong>
                     {weather.windSpeed} m/s
                   </strong>
@@ -336,6 +345,7 @@ const Weather = () => {
 
                 <div>
                   <span>Pressure</span>
+
                   <strong>
                     {weather.pressure} hPa
                   </strong>
@@ -349,6 +359,7 @@ const Weather = () => {
 
                 <div>
                   <span>Visibility</span>
+
                   <strong>
                     {(weather.visibility / 1000).toFixed(1)} km
                   </strong>
@@ -366,6 +377,7 @@ const Weather = () => {
                 <div className="temperature-range">
                   <div>
                     <span>Minimum</span>
+
                     <strong>
                       {Math.round(
                         weather.minTemperature,
@@ -376,6 +388,7 @@ const Weather = () => {
 
                   <div>
                     <span>Maximum</span>
+
                     <strong>
                       {Math.round(
                         weather.maxTemperature,
@@ -395,6 +408,7 @@ const Weather = () => {
                 <div className="wind-details">
                   <div>
                     <span>Speed</span>
+
                     <strong>
                       {weather.windSpeed} m/s
                     </strong>
@@ -402,6 +416,7 @@ const Weather = () => {
 
                   <div>
                     <span>Direction</span>
+
                     <strong>
                       {getWindDirection(
                         weather.windDirection,
@@ -445,7 +460,9 @@ const Weather = () => {
                 <div className="sun-times">
                   <div>
                     <Sunrise size={18} />
+
                     <span>Sunrise</span>
+
                     <strong>
                       {formatTime(weather.sunrise)}
                     </strong>
@@ -453,7 +470,9 @@ const Weather = () => {
 
                   <div>
                     <Sunset size={18} />
+
                     <span>Sunset</span>
+
                     <strong>
                       {formatTime(weather.sunset)}
                     </strong>

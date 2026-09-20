@@ -23,9 +23,9 @@ import {
 
 import { useAuth } from '../context/AuthContext';
 
-import './Storage.css';
+import API_URL from '../config/api';
 
-const API_URL = 'http://localhost:5000/api';
+import './Storage.css';
 
 function Storage() {
   const { token, user } = useAuth();
@@ -750,18 +750,6 @@ function Storage() {
       return;
     }
 
-    const existingRequest =
-      getExistingStorageRequest(facility);
-
-    if (existingRequest) {
-      setRequestError(
-        existingRequest.status === 'approved'
-          ? 'Storage for this crop and quantity has already been approved at this facility.'
-          : 'You already have a pending storage request for this crop and quantity at this facility.',
-      );
-      return;
-    }
-
     setRequestFacility(facility);
     setRequestStartDate(
       getDefaultRequestDate(),
@@ -889,90 +877,6 @@ function Storage() {
     };
 
     return labels[status] || status;
-  };
-
-  const activeStorageRequestStatuses = [
-    'pending',
-    'approved',
-  ];
-
-  const getExistingStorageRequest = (facility) => {
-    if (
-      !facility?._id ||
-      !selectedCrop ||
-      !storageQuantity ||
-      Number(storageQuantity) <= 0
-    ) {
-      return null;
-    }
-
-    const requestedQuantityKg = convertToKg(
-      storageQuantity,
-      storageUnit,
-    );
-
-    return (
-      myRequests.find((request) => {
-        if (
-          !activeStorageRequestStatuses.includes(
-            request.status,
-          )
-        ) {
-          return false;
-        }
-
-        const requestFacilityId =
-          typeof request.storageFacility === 'object'
-            ? request.storageFacility?._id
-            : request.storageFacility;
-
-        const requestQuantityKg =
-          Number(request.quantityInKg) > 0
-            ? Number(request.quantityInKg)
-            : convertToKg(
-                request.quantity,
-                request.unit,
-              );
-
-        const sameFacility =
-          String(requestFacilityId) ===
-          String(facility._id);
-
-        const sameCrop =
-          String(request.crop || '')
-            .trim()
-            .toLowerCase() ===
-          String(selectedCrop || '')
-            .trim()
-            .toLowerCase();
-
-        const sameQuantity =
-          Math.abs(
-            requestQuantityKg -
-              requestedQuantityKg,
-          ) < 0.001;
-
-        return (
-          sameFacility &&
-          sameCrop &&
-          sameQuantity
-        );
-      }) || null
-    );
-  };
-
-  const getStorageRequestButtonLabel = (
-    request,
-  ) => {
-    if (!request) {
-      return 'Request Storage';
-    }
-
-    if (request.status === 'approved') {
-      return 'Storage Approved';
-    }
-
-    return 'Request Pending';
   };
 
   const requestStatusIcon = (status) => {
@@ -2213,56 +2117,18 @@ function Storage() {
 
                       {user?.role === 'farmer' &&
                         finderSubmitted && (
-                        (() => {
-                          const existingRequest =
-                            getExistingStorageRequest(
+                        <button
+                          type="button"
+                          className="storage-request-button"
+                          onClick={() =>
+                            openStorageRequest(
                               facility,
-                            );
-
-                          return (
-                            <button
-                              type="button"
-                              className="storage-request-button"
-                              onClick={() =>
-                                openStorageRequest(
-                                  facility,
-                                )
-                              }
-                              disabled={
-                                Boolean(
-                                  existingRequest,
-                                ) ||
-                                requestSubmitting
-                              }
-                              title={
-                                existingRequest
-                                  ? existingRequest.status ===
-                                    'approved'
-                                    ? 'Storage request already approved.'
-                                    : 'Storage request already pending.'
-                                  : 'Request storage at this facility.'
-                              }
-                            >
-                              {existingRequest ? (
-                                existingRequest.status ===
-                                'approved' ? (
-                                  <CheckCircle2
-                                    size={14}
-                                  />
-                                ) : (
-                                  <Clock3
-                                    size={14}
-                                  />
-                                )
-                              ) : (
-                                <Send size={14} />
-                              )}
-                              {getStorageRequestButtonLabel(
-                                existingRequest,
-                              )}
-                            </button>
-                          );
-                        })()
+                            )
+                          }
+                        >
+                          <Send size={14} />
+                          Request Storage
+                        </button>
                       )}
 
                       <button
@@ -2781,54 +2647,19 @@ function Storage() {
 
               {user?.role === 'farmer' &&
                 finderSubmitted && (
-                (() => {
-                  const existingRequest =
-                    getExistingStorageRequest(
+                <button
+                  type="button"
+                  className="storage-request-modal-button"
+                  onClick={() => {
+                    openStorageRequest(
                       selectedFacility,
                     );
-
-                  return (
-                    <button
-                      type="button"
-                      className="storage-request-modal-button"
-                      onClick={() => {
-                        openStorageRequest(
-                          selectedFacility,
-                        );
-
-                        if (!existingRequest) {
-                          setSelectedFacility(null);
-                        }
-                      }}
-                      disabled={
-                        Boolean(existingRequest) ||
-                        requestSubmitting
-                      }
-                      title={
-                        existingRequest
-                          ? existingRequest.status ===
-                            'approved'
-                            ? 'Storage request already approved.'
-                            : 'Storage request already pending.'
-                          : 'Request storage at this facility.'
-                      }
-                    >
-                      {existingRequest ? (
-                        existingRequest.status ===
-                        'approved' ? (
-                          <CheckCircle2 size={17} />
-                        ) : (
-                          <Clock3 size={17} />
-                        )
-                      ) : (
-                        <Send size={17} />
-                      )}
-                      {getStorageRequestButtonLabel(
-                        existingRequest,
-                      )}
-                    </button>
-                  );
-                })()
+                    setSelectedFacility(null);
+                  }}
+                >
+                  <Send size={17} />
+                  Request Storage
+                </button>
               )}
 
               <button

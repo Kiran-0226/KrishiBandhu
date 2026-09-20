@@ -14,10 +14,11 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
+import API_URL from '../config/api';
 
 import './Parchi.css';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = API_URL;
 
 const Parchi = () => {
   const { user, token } = useAuth();
@@ -42,7 +43,7 @@ const Parchi = () => {
       setError('');
 
       const response = await fetch(
-        `${API_BASE_URL}/api/parchi`,
+        `${API_BASE_URL}/parchi`,
         {
           method: 'GET',
           headers: {

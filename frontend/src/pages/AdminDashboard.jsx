@@ -17,10 +17,11 @@ import {
 
 import { useAuth } from '../context/AuthContext';
 
+import API_URL from '../config/api';
+
 import './AdminDashboard.css';
 
-const API_BASE_URL =
-  'http://localhost:5000/api';
+const API_BASE_URL = API_URL;
 
 function AdminDashboard() {
   const {

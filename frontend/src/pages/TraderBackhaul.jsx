@@ -26,10 +26,9 @@ import {
 
 import { useAuth } from '../context/AuthContext';
 
-import './Backhaul.css';
+import API_URL from '../config/api';
 
-const API_URL =
-  'http://localhost:5000/api';
+import './Backhaul.css';
 
 function TraderBackhaul() {
   const {

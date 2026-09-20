@@ -22,11 +22,11 @@ import {
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+import API_URL from '../config/api';
+
 import './AIAssistant.css';
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  'http://localhost:5000/api';
+const API_BASE_URL = API_URL;
 
 /* =========================================================
    CONVERT QUINTAL PRICE TO KG PRICE

@@ -1,4 +1,7 @@
 import { useState } from 'react';
+
+import API_URL from '../config/api';
+
 import './AddMarketForm.css';
 
 function AddMarketForm({
@@ -45,7 +48,7 @@ function AddMarketForm({
       setSaving(true);
 
       const response = await fetch(
-        'http://localhost:5000/api/markets',
+        `${API_URL}/markets`,
         {
           method: 'POST',
 

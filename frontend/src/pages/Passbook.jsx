@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import './Passbook.css';  
+import './Passbook.css';
+
 import {
   ArrowDownCircle,
   ArrowUpCircle,
@@ -14,8 +15,9 @@ import {
 } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
+import API_BASE_URL from '../config/api';
 
-const API_URL = 'http://localhost:5000/api/transactions';
+const API_URL = `${API_BASE_URL}/transactions`;
 
 const emptyForm = {
   type: 'income',
@@ -413,7 +415,7 @@ function Passbook() {
 
                       {transaction.market?.name && (
                         <span>
-                          📍 {transaction.market.name}
+                          🗺 {transaction.market.name}
                         </span>
                       )}
                     </div>
@@ -568,6 +570,7 @@ function Passbook() {
                   Amount (₹)
                   <div className="amount-input">
                     <IndianRupee size={17} />
+
                     <input
                       type="number"
                       name="amount"

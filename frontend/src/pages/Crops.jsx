@@ -8,10 +8,11 @@ import CropForm from '../components/CropForm';
 
 import { useAuth } from '../context/AuthContext';
 
+import API_URL from '../config/api';
+
 import './Crops.css';
 
-const API_BASE_URL =
-  'http://localhost:5000/api';
+const API_BASE_URL = API_URL;
 
 function Crops() {
   const {
@@ -35,7 +36,6 @@ function Crops() {
 
   const [deletingCropId, setDeletingCropId] =
     useState(null);
-
 
   // ==========================================
   // Fetch Farmer's Crops
@@ -95,7 +95,6 @@ function Crops() {
     }
   };
 
-
   // ==========================================
   // Load crops after authentication
   // ==========================================
@@ -105,7 +104,6 @@ function Crops() {
       fetchCrops();
     }
   }, [token]);
-
 
   // ==========================================
   // Crop Added
@@ -124,7 +122,6 @@ function Crops() {
     setShowForm(false);
   };
 
-
   // ==========================================
   // Edit Crop
   // ==========================================
@@ -135,7 +132,6 @@ function Crops() {
     setEditingCrop(crop);
     setShowForm(true);
   };
-
 
   // ==========================================
   // Crop Updated
@@ -159,7 +155,6 @@ function Crops() {
     setShowForm(false);
   };
 
-
   // ==========================================
   // Cancel Form
   // ==========================================
@@ -168,7 +163,6 @@ function Crops() {
     setEditingCrop(null);
     setShowForm(false);
   };
-
 
   // ==========================================
   // Delete Crop
@@ -236,7 +230,6 @@ function Crops() {
     }
   };
 
-
   // ==========================================
   // Render
   // ==========================================
@@ -248,7 +241,6 @@ function Crops() {
         title="My Crops"
         description="Manage and monitor your crops."
       />
-
 
       {showForm ? (
 
@@ -299,7 +291,6 @@ function Crops() {
 
             </div>
 
-
             <button
               type="button"
               className="primary-button"
@@ -313,7 +304,6 @@ function Crops() {
 
           </div>
 
-
           {/* ==================================
               Loading
           ================================== */}
@@ -325,7 +315,6 @@ function Crops() {
               </p>
             </div>
           )}
-
 
           {/* ==================================
               Error
@@ -346,7 +335,6 @@ function Crops() {
               </button>
             </div>
           )}
-
 
           {/* ==================================
               Empty State
@@ -387,7 +375,6 @@ function Crops() {
 
             )}
 
-
           {/* ==================================
               Crop Cards
           ================================== */}
@@ -420,7 +407,6 @@ function Crops() {
 
                       </div>
 
-
                       <div className="crop-card-title">
 
                         <h3>
@@ -434,7 +420,6 @@ function Crops() {
                         )}
 
                       </div>
-
 
                       <div className="crop-card-details">
 
@@ -450,7 +435,6 @@ function Crops() {
                           </strong>
 
                         </div>
-
 
                         {crop.sowingDate && (
 
@@ -469,7 +453,6 @@ function Crops() {
                           </div>
 
                         )}
-
 
                         {crop.expectedHarvestDate && (
 
@@ -491,27 +474,17 @@ function Crops() {
 
                       </div>
 
-
                       {crop.notes && (
 
                         <div className="crop-notes">
 
                           <span>
-                            📝
-                          </span>
-
-                          <p>
                             {crop.notes}
-                          </p>
+                          </span>
 
                         </div>
 
                       )}
-
-
-                      {/* ==================================
-                          Actions
-                      ================================== */}
 
                       <div className="crop-card-actions">
 
@@ -524,7 +497,6 @@ function Crops() {
                         >
                           ✏️ Edit
                         </button>
-
 
                         <button
                           type="button"

@@ -19,9 +19,9 @@ import { Link } from 'react-router-dom';
 
 import { useAuth } from '../context/AuthContext';
 
-import './TraderDashboard.css';
+import API_URL from '../config/api';
 
-const API_URL = 'http://localhost:5000/api';
+import './TraderDashboard.css';
 
 function TraderDashboard() {
   const { user, token } = useAuth();

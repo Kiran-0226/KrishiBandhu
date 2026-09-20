@@ -10,10 +10,11 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
+import API_URL from '../config/api';
 
 import './Bids.css';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = API_URL;
 
 const getStatusClass = (status) => {
   switch (status) {
@@ -46,16 +47,13 @@ const formatDate = (dateString) => {
     return '-';
   }
 
-  return new Date(dateString).toLocaleString(
-    'en-IN',
-    {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    },
-  );
+  return new Date(dateString).toLocaleString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 };
 
 const formatCurrency = (amount) => {
@@ -106,7 +104,7 @@ function Bids() {
         setError('');
 
         const response = await fetch(
-          `${API_BASE_URL}/api/bids`,
+          `${API_BASE_URL}/bids`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -181,7 +179,7 @@ function Bids() {
       setError('');
 
       const response = await fetch(
-        `${API_BASE_URL}/api/bids/${bidId}/status`,
+        `${API_BASE_URL}/bids/${bidId}/status`,
         {
           method: 'PATCH',
 
@@ -317,6 +315,7 @@ function Bids() {
           </div>
 
           <div>
+
             <span>
               Total Bids
             </span>
@@ -324,6 +323,7 @@ function Bids() {
             <strong>
               {bids.length}
             </strong>
+
           </div>
 
         </div>
@@ -336,6 +336,7 @@ function Bids() {
           </div>
 
           <div>
+
             <span>
               Pending
             </span>
@@ -343,6 +344,7 @@ function Bids() {
             <strong>
               {pendingCount}
             </strong>
+
           </div>
 
         </div>
@@ -355,6 +357,7 @@ function Bids() {
           </div>
 
           <div>
+
             <span>
               Accepted
             </span>
@@ -362,6 +365,7 @@ function Bids() {
             <strong>
               {acceptedCount}
             </strong>
+
           </div>
 
         </div>
@@ -374,6 +378,7 @@ function Bids() {
           </div>
 
           <div>
+
             <span>
               Rejected
             </span>
@@ -381,6 +386,7 @@ function Bids() {
             <strong>
               {rejectedCount}
             </strong>
+
           </div>
 
         </div>
@@ -629,6 +635,7 @@ function Bids() {
                 <span className="bid-date">
 
                   Received{' '}
+
                   {formatDate(
                     bid.createdAt,
                   )}

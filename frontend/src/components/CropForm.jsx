@@ -3,6 +3,8 @@ import {
   useState,
 } from 'react';
 
+import API_URL from '../config/api';
+
 import './CropForm.css';
 
 function CropForm({
@@ -164,8 +166,8 @@ function CropForm({
       setSaving(true);
 
       const url = isEditing
-        ? `http://localhost:5000/api/crops/${crop._id}`
-        : 'http://localhost:5000/api/crops';
+        ? `${API_URL}/crops/${crop._id}`
+        : `${API_URL}/crops`;
 
       const method =
         isEditing

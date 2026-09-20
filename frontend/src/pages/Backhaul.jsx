@@ -24,11 +24,9 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
+import API_URL from '../config/api';
 
 import './Backhaul.css';
-
-const API_URL =
-  'http://localhost:5000/api';
 
 function Backhaul() {
   const {
