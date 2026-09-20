@@ -16,6 +16,7 @@ import Bids from './pages/Bids';
 import Weather from './pages/Weather';
 import AIAssistant from './pages/AIAssistant';
 import Passbook from './pages/Passbook';
+import Parchi from './pages/Parchi';
 import Settings from './pages/Settings';
 
 import Login from './pages/Login';
@@ -330,6 +331,21 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <Passbook />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ============================== */}
+        {/* PARCHI                          */}
+        {/* ============================== */}
+
+        <Route
+          path="/parchi"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Parchi />
               </MainLayout>
             </ProtectedRoute>
           }

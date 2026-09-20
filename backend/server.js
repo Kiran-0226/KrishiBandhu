@@ -38,6 +38,18 @@ const adminRoutes = require('./routes/adminRoutes');
 const adminUserRoutes = require('./routes/adminUserRoutes');
 
 // ==========================================
+// Marketplace Routes
+// ==========================================
+
+const saleListingRoutes = require('./routes/saleListingRoutes');
+
+// ==========================================
+// Parchi Routes
+// ==========================================
+
+const parchiRoutes = require('./routes/parchiRoutes');
+
+// ==========================================
 // Create Express App
 // ==========================================
 
@@ -204,6 +216,24 @@ app.use(
 );
 
 // ==========================================
+// Marketplace / Sale Listings
+// ==========================================
+
+app.use(
+  '/api/sale-listings',
+  saleListingRoutes,
+);
+
+// ==========================================
+// Parchi
+// ==========================================
+
+app.use(
+  '/api/parchi',
+  parchiRoutes,
+);
+
+// ==========================================
 // 404 Handler
 // ==========================================
 
@@ -294,6 +324,14 @@ app.listen(PORT, () => {
 
   console.log(
     `👥 Admin Users: http://localhost:${PORT}/api/admin/users`,
+  );
+
+  console.log(
+    `🛒 Sale Listings: http://localhost:${PORT}/api/sale-listings`,
+  );
+
+  console.log(
+    `📄 Parchi: http://localhost:${PORT}/api/parchi`,
   );
 
   console.log('');

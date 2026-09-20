@@ -8,21 +8,69 @@ const {
   deleteBid,
 } = require('../controllers/bidController');
 
+const {
+  protect,
+  requireRole,
+} = require('../middleware/authMiddleware');
+
 const router = express.Router();
 
-// Get all bids
+/*
+ * Every bid request requires authentication.
+ */
+router.use(protect);
+
+/*
+ * Get bids
+ *
+ * Farmer  → bids for their crops
+ * Trader  → their own bids
+ * Admin   → all bids
+ */
 router.get('/', getBids);
 
-// Get a single bid
+/*
+ * Get a single bid
+ */
 router.get('/:id', getBidById);
 
-// Create a new bid
-router.post('/', createBid);
+/*
+ * Create bid
+ *
+ * Only authenticated traders can place bids.
+ */
+router.post(
+  '/',
+  requireRole('trader'),
+  createBid,
+);
 
-// Update bid status
-router.patch('/:id/status', updateBidStatus);
+/*
+ * Update bid status
+ *
+ * Farmers can accept/reject bids on their
+ * own crops.
+ *
+ * Admins can manage any bid.
+ */
+router.patch(
+  '/:id/status',
+  requireRole('farmer', 'admin'),
+  updateBidStatus,
+);
 
-// Delete a bid
-router.delete('/:id', deleteBid);
+/*
+ * Delete bid
+ *
+ * Trader can delete their own bid.
+ * Admin can delete any bid.
+ *
+ * Ownership is enforced inside the controller.
+ */
+router.delete(
+  '/:id',
+  requireRole('trader', 'admin'),
+  deleteBid,
+);
 
 module.exports = router;

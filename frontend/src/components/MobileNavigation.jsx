@@ -2,7 +2,7 @@ import {
   LayoutDashboard,
   Sprout,
   TrendingUp,
-  Bot,
+  ReceiptText,
   UserCircle,
 } from 'lucide-react';
 
@@ -27,9 +27,9 @@ const items = [
     path: '/market',
   },
   {
-    label: 'AI',
-    icon: Bot,
-    path: '/ai-assistant',
+    label: 'Parchi',
+    icon: ReceiptText,
+    path: '/parchi',
   },
   {
     label: 'Profile',

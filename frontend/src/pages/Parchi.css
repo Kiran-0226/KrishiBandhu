@@ -1,0 +1,375 @@
+.parchi-page {
+  width: 100%;
+  padding: 24px;
+}
+
+.parchi-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.parchi-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.parchi-title-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: #e9f7ef;
+  color: #237651;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.parchi-page h1 {
+  margin: 0;
+  color: #173c2b;
+  font-size: 28px;
+}
+
+.parchi-page-header p {
+  margin: 4px 0 0;
+  color: #718078;
+  font-size: 14px;
+}
+
+.parchi-refresh-button {
+  border: 1px solid #d8e7dd;
+  background: #ffffff;
+  color: #237651;
+  padding: 10px 16px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.parchi-refresh-button:hover {
+  background: #f3faf6;
+}
+
+.parchi-refresh-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.parchi-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.parchi-summary-card {
+  background: #ffffff;
+  border: 1px solid #e1ebe5;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.parchi-summary-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  background: #edf8f1;
+  color: #237651;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.parchi-summary-card span {
+  display: block;
+  color: #77857d;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.parchi-summary-card strong {
+  display: block;
+  color: #173c2b;
+  font-size: 19px;
+}
+
+.parchi-error {
+  background: #fff1f1;
+  border: 1px solid #f0caca;
+  color: #b42318;
+  padding: 14px 16px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.parchi-state,
+.parchi-empty {
+  background: #ffffff;
+  border: 1px solid #e1ebe5;
+  border-radius: 16px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6f7e75;
+  text-align: center;
+  padding: 30px;
+}
+
+.parchi-empty svg {
+  color: #70a88b;
+  margin-bottom: 10px;
+}
+
+.parchi-empty h2 {
+  margin: 0 0 7px;
+  color: #234a35;
+}
+
+.parchi-empty p {
+  max-width: 480px;
+  margin: 0;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.parchi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.parchi-card {
+  background: #ffffff;
+  border: 1px solid #dfeae3;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 3px 12px rgba(26, 73, 48, 0.04);
+}
+
+.parchi-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #edf1ee;
+}
+
+.parchi-number-label {
+  color: #839088;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.parchi-card h2 {
+  margin: 5px 0 0;
+  color: #237651;
+  font-size: 21px;
+}
+
+.parchi-status-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.parchi-status,
+.parchi-payment-status {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.parchi-status-issued {
+  background: #eef5ff;
+  color: #275b9d;
+}
+
+.parchi-status-payment_pending {
+  background: #fff6df;
+  color: #966700;
+}
+
+.parchi-status-paid,
+.parchi-status-completed {
+  background: #eaf8ef;
+  color: #237651;
+}
+
+.parchi-status-cancelled {
+  background: #fff0f0;
+  color: #b42318;
+}
+
+.parchi-payment-pending,
+.parchi-payment-initiated {
+  background: #fff7e8;
+  color: #986b00;
+}
+
+.parchi-payment-success {
+  background: #eaf8ef;
+  color: #237651;
+}
+
+.parchi-payment-failed,
+.parchi-payment-cancelled {
+  background: #fff0f0;
+  color: #b42318;
+}
+
+.parchi-details-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  padding: 20px 0;
+}
+
+.parchi-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.parchi-detail > svg {
+  color: #3b8963;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.parchi-detail span {
+  display: block;
+  color: #87938b;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.parchi-detail strong {
+  display: block;
+  color: #273d31;
+  font-size: 14px;
+}
+
+.parchi-detail small {
+  display: block;
+  color: #7c8981;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.parchi-financial {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.3fr;
+  gap: 14px;
+  background: #f7fbf8;
+  border: 1px solid #e5efe8;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.parchi-financial span {
+  display: block;
+  color: #7d8a82;
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+.parchi-financial strong {
+  color: #294638;
+  font-size: 15px;
+}
+
+.parchi-financial .parchi-total {
+  text-align: right;
+}
+
+.parchi-financial .parchi-total strong {
+  color: #237651;
+  font-size: 19px;
+}
+
+.parchi-spin {
+  animation: parchi-spin 0.9s linear infinite;
+}
+
+@keyframes parchi-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1000px) {
+  .parchi-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .parchi-details-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .parchi-page {
+    padding: 16px;
+  }
+
+  .parchi-page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .parchi-refresh-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .parchi-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parchi-card {
+    padding: 16px;
+  }
+
+  .parchi-card-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .parchi-status-group {
+    justify-content: flex-start;
+  }
+
+  .parchi-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parchi-financial {
+    grid-template-columns: 1fr;
+  }
+
+  .parchi-financial .parchi-total {
+    text-align: left;
+  }
+}

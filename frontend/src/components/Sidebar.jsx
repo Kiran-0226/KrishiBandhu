@@ -59,6 +59,11 @@ const farmerMenuItems = [
     icon: BookOpen,
     path: '/passbook',
   },
+  {
+    label: 'Parchi',
+    icon: ReceiptText,
+    path: '/parchi',
+  },
 ];
 
 const traderMenuItems = [
