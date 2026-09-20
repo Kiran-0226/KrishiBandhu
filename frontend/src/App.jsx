@@ -24,8 +24,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 
 import TraderDashboard from './pages/TraderDashboard';
+
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
+import AdminMarkets from './pages/AdminMarkets';
 import AdminStorageRequests from './pages/AdminStorageRequests';
 
 const AuthLoading = () => {
@@ -51,7 +53,9 @@ const AuthLoading = () => {
 /* Authentication Protection        */
 /* -------------------------------- */
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({
+  children,
+}) => {
   const {
     isAuthenticated,
     loading,
@@ -102,9 +106,14 @@ const RoleRoute = ({
 
   if (
     !user ||
-    !allowedRoles.includes(user.role)
+    !allowedRoles.includes(
+      user.role,
+    )
   ) {
-    if (user?.role === 'trader') {
+    if (
+      user?.role ===
+      'trader'
+    ) {
       return (
         <Navigate
           to="/trader"
@@ -113,7 +122,10 @@ const RoleRoute = ({
       );
     }
 
-    if (user?.role === 'admin') {
+    if (
+      user?.role ===
+      'admin'
+    ) {
       return (
         <Navigate
           to="/admin"
@@ -137,7 +149,9 @@ const RoleRoute = ({
 /* Public Route                     */
 /* -------------------------------- */
 
-const PublicRoute = ({ children }) => {
+const PublicRoute = ({
+  children,
+}) => {
   const {
     isAuthenticated,
     loading,
@@ -149,7 +163,10 @@ const PublicRoute = ({ children }) => {
   }
 
   if (isAuthenticated) {
-    if (user?.role === 'trader') {
+    if (
+      user?.role ===
+      'trader'
+    ) {
       return (
         <Navigate
           to="/trader"
@@ -158,7 +175,10 @@ const PublicRoute = ({ children }) => {
       );
     }
 
-    if (user?.role === 'admin') {
+    if (
+      user?.role ===
+      'admin'
+    ) {
       return (
         <Navigate
           to="/admin"
@@ -185,7 +205,10 @@ const PublicRoute = ({ children }) => {
 const RoleRedirect = () => {
   const { user } = useAuth();
 
-  if (user?.role === 'trader') {
+  if (
+    user?.role ===
+    'trader'
+  ) {
     return (
       <Navigate
         to="/trader"
@@ -194,7 +217,10 @@ const RoleRedirect = () => {
     );
   }
 
-  if (user?.role === 'admin') {
+  if (
+    user?.role ===
+    'admin'
+  ) {
     return (
       <Navigate
         to="/admin"
@@ -251,7 +277,9 @@ function App() {
           path="/dashboard"
           element={
             <RoleRoute
-              allowedRoles={['farmer']}
+              allowedRoles={[
+                'farmer',
+              ]}
             >
               <MainLayout>
                 <Dashboard />
@@ -268,7 +296,9 @@ function App() {
           path="/crops"
           element={
             <RoleRoute
-              allowedRoles={['farmer']}
+              allowedRoles={[
+                'farmer',
+              ]}
             >
               <MainLayout>
                 <Crops />
@@ -292,7 +322,9 @@ function App() {
           path="/bids"
           element={
             <RoleRoute
-              allowedRoles={['farmer']}
+              allowedRoles={[
+                'farmer',
+              ]}
             >
               <MainLayout>
                 <Bids />
@@ -305,7 +337,9 @@ function App() {
           path="/weather"
           element={
             <RoleRoute
-              allowedRoles={['farmer']}
+              allowedRoles={[
+                'farmer',
+              ]}
             >
               <MainLayout>
                 <Weather />
@@ -318,7 +352,9 @@ function App() {
           path="/ai-assistant"
           element={
             <RoleRoute
-              allowedRoles={['farmer']}
+              allowedRoles={[
+                'farmer',
+              ]}
             >
               <MainLayout>
                 <AIAssistant />
@@ -391,7 +427,9 @@ function App() {
           path="/trader"
           element={
             <RoleRoute
-              allowedRoles={['trader']}
+              allowedRoles={[
+                'trader',
+              ]}
             >
               <MainLayout>
                 <TraderDashboard />
@@ -408,7 +446,9 @@ function App() {
           path="/admin"
           element={
             <RoleRoute
-              allowedRoles={['admin']}
+              allowedRoles={[
+                'admin',
+              ]}
             >
               <MainLayout>
                 <AdminDashboard />
@@ -425,10 +465,31 @@ function App() {
           path="/admin/users"
           element={
             <RoleRoute
-              allowedRoles={['admin']}
+              allowedRoles={[
+                'admin',
+              ]}
             >
               <MainLayout>
                 <AdminUsers />
+              </MainLayout>
+            </RoleRoute>
+          }
+        />
+
+        {/* ============================== */}
+        {/* ADMIN MARKETS                  */}
+        {/* ============================== */}
+
+        <Route
+          path="/admin/markets"
+          element={
+            <RoleRoute
+              allowedRoles={[
+                'admin',
+              ]}
+            >
+              <MainLayout>
+                <AdminMarkets />
               </MainLayout>
             </RoleRoute>
           }
@@ -442,7 +503,9 @@ function App() {
           path="/admin/storage-requests"
           element={
             <RoleRoute
-              allowedRoles={['admin']}
+              allowedRoles={[
+                'admin',
+              ]}
             >
               <MainLayout>
                 <AdminStorageRequests />

@@ -20,6 +20,7 @@ const aiImageRoutes = require('./routes/aiImageRoutes');
 
 const adminRoutes = require('./routes/adminRoutes');
 const adminUserRoutes = require('./routes/adminUserRoutes');
+const adminMarketRoutes = require('./routes/adminMarketRoutes');
 
 const saleListingRoutes = require('./routes/saleListingRoutes');
 
@@ -181,6 +182,11 @@ app.use(
 );
 
 app.use(
+  '/api/admin/markets',
+  adminMarketRoutes,
+);
+
+app.use(
   '/api/sale-listings',
   saleListingRoutes,
 );
@@ -337,16 +343,10 @@ app.listen(
       `🚀 Server: http://localhost:${PORT}`,
     );
     console.log(
-      `❤️  Health: http://localhost:${PORT}/api/health`,
+      `🩺 Health: http://localhost:${PORT}/api/health`,
     );
     console.log(
-      `🔐 Auth: http://localhost:${PORT}/api/auth`,
-    );
-    console.log(
-      `🌱 Crops: http://localhost:${PORT}/api/crops`,
-    );
-    console.log(
-      `🌦️ Weather: http://localhost:${PORT}/api/weather?city=Bengaluru`,
+      `🌤️ Weather: http://localhost:${PORT}/api/weather?city=Bengaluru`,
     );
     console.log(
       `📈 Markets: http://localhost:${PORT}/api/markets`,
@@ -355,22 +355,13 @@ app.listen(
       `💰 Market Prices: http://localhost:${PORT}/api/market-prices`,
     );
     console.log(
-      `🤝 Bids: http://localhost:${PORT}/api/bids`,
-    );
-    console.log(
-      `📒 Transactions: http://localhost:${PORT}/api/transactions`,
-    );
-    console.log(
-      `🤖 AI Assistant: http://localhost:${PORT}/api/ai/chat`,
-    );
-    console.log(
-      `📸 Crop Analysis: http://localhost:${PORT}/api/ai/image/analyze`,
-    );
-    console.log(
       `🛡️ Admin: http://localhost:${PORT}/api/admin`,
     );
     console.log(
       `👥 Admin Users: http://localhost:${PORT}/api/admin/users`,
+    );
+    console.log(
+      `🏪 Admin Markets: http://localhost:${PORT}/api/admin/markets`,
     );
     console.log(
       `🛒 Sale Listings: http://localhost:${PORT}/api/sale-listings`,
@@ -379,7 +370,7 @@ app.listen(
       `📄 Parchi: http://localhost:${PORT}/api/parchi`,
     );
     console.log(
-      `🏭 Storage & Warehouses: http://localhost:${PORT}/api/storage`,
+      `🏬 Storage & Warehouses: http://localhost:${PORT}/api/storage`,
     );
     console.log(
       `📎 Uploads: http://localhost:${PORT}/uploads`,
