@@ -28,6 +28,7 @@ import TraderDashboard from './pages/TraderDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
 import AdminMarkets from './pages/AdminMarkets';
+import AdminCrops from './pages/AdminCrops';
 import AdminStorageRequests from './pages/AdminStorageRequests';
 
 const AuthLoading = () => {
@@ -490,6 +491,25 @@ function App() {
             >
               <MainLayout>
                 <AdminMarkets />
+              </MainLayout>
+            </RoleRoute>
+          }
+        />
+
+        {/* ============================== */}
+        {/* ADMIN CROPS                    */}
+        {/* ============================== */}
+
+        <Route
+          path="/admin/crops"
+          element={
+            <RoleRoute
+              allowedRoles={[
+                'admin',
+              ]}
+            >
+              <MainLayout>
+                <AdminCrops />
               </MainLayout>
             </RoleRoute>
           }

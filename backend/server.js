@@ -21,6 +21,7 @@ const aiImageRoutes = require('./routes/aiImageRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const adminUserRoutes = require('./routes/adminUserRoutes');
 const adminMarketRoutes = require('./routes/adminMarketRoutes');
+const adminCropRoutes = require('./routes/adminCropRoutes');
 
 const saleListingRoutes = require('./routes/saleListingRoutes');
 
@@ -184,6 +185,11 @@ app.use(
 app.use(
   '/api/admin/markets',
   adminMarketRoutes,
+);
+
+app.use(
+  '/api/admin/crops',
+  adminCropRoutes,
 );
 
 app.use(
@@ -362,6 +368,9 @@ app.listen(
     );
     console.log(
       `🏪 Admin Markets: http://localhost:${PORT}/api/admin/markets`,
+    );
+    console.log(
+      `🌱 Admin Crops: http://localhost:${PORT}/api/admin/crops`,
     );
     console.log(
       `🛒 Sale Listings: http://localhost:${PORT}/api/sale-listings`,
