@@ -8,77 +8,40 @@ const path = require('path');
 
 const connectDB = require('./config/db');
 
-// ==========================================
-// Application Routes
-// ==========================================
-
 const authRoutes = require('./routes/authRoutes');
-
 const cropRoutes = require('./routes/cropRoutes');
-
 const weatherRoutes = require('./routes/weatherRoutes');
-
 const marketRoutes = require('./routes/marketRoutes');
-
 const marketPriceRoutes = require('./routes/marketPriceRoutes');
-
 const bidRoutes = require('./routes/bidRoutes');
-
 const transactionRoutes = require('./routes/transactionRoutes');
-
 const aiRoutes = require('./routes/aiRoutes');
-
 const aiImageRoutes = require('./routes/aiImageRoutes');
 
-// ==========================================
-// Admin Routes
-// ==========================================
-
 const adminRoutes = require('./routes/adminRoutes');
-
 const adminUserRoutes = require('./routes/adminUserRoutes');
-
-// ==========================================
-// Marketplace Routes
-// ==========================================
 
 const saleListingRoutes = require('./routes/saleListingRoutes');
 
-// ==========================================
-// Parchi Routes
-// ==========================================
-
 const parchiRoutes = require('./routes/parchiRoutes');
-
-// ==========================================
-// Storage & Warehouse Routes
-// ==========================================
 
 const storageRoutes = require('./routes/storageRoutes');
 
-// ==========================================
-// Create Express App
-// ==========================================
-
 const app = express();
 
-// ==========================================
-// Connect MongoDB
-// ==========================================
-
 connectDB();
-
-// ==========================================
-// Port
-// ==========================================
 
 const PORT = process.env.PORT || 5000;
 
 // ==========================================
-// Middleware
+// SECURITY
 // ==========================================
 
 app.use(helmet());
+
+// ==========================================
+// CORS
+// ==========================================
 
 app.use(
   cors({
@@ -87,6 +50,10 @@ app.use(
       'http://localhost:5173',
   }),
 );
+
+// ==========================================
+// BODY PARSERS
+// ==========================================
 
 app.use(
   express.json({
@@ -101,54 +68,61 @@ app.use(
   }),
 );
 
+// ==========================================
+// LOGGER
+// ==========================================
+
 app.use(morgan('dev'));
 
 // ==========================================
-// Uploaded Files
+// STATIC UPLOADS
 // ==========================================
-//
-// Receipts uploaded by traders are stored in:
-//
-// backend/uploads/parchi-receipts/
-//
-// They can be accessed through:
-//
-// /uploads/parchi-receipts/<filename>
-//
-// IMPORTANT:
-// These files are already excluded from Git
-// through .gitignore.
-//
 
 app.use(
   '/uploads',
   express.static(
-    path.join(__dirname, 'uploads'),
+    path.join(
+      __dirname,
+      'uploads',
+    ),
   ),
 );
 
 // ==========================================
-// Basic API Routes
+// HEALTH
 // ==========================================
 
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'KrishiBandhu API is running',
-    timestamp: new Date().toISOString(),
-  });
-});
-
-app.get('/api', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Welcome to KrishiBandhu API',
-    version: '1.0.0',
-  });
-});
+app.get(
+  '/api/health',
+  (req, res) => {
+    res.status(200).json({
+      success: true,
+      message:
+        'KrishiBandhu API is running',
+      timestamp:
+        new Date().toISOString(),
+    });
+  },
+);
 
 // ==========================================
-// Authentication
+// API ROOT
+// ==========================================
+
+app.get(
+  '/api',
+  (req, res) => {
+    res.status(200).json({
+      success: true,
+      message:
+        'Welcome to KrishiBandhu API',
+      version: '1.0.0',
+    });
+  },
+);
+
+// ==========================================
+// API ROUTES
 // ==========================================
 
 app.use(
@@ -156,117 +130,65 @@ app.use(
   authRoutes,
 );
 
-// ==========================================
-// Farmer / Crop Routes
-// ==========================================
-
 app.use(
   '/api/crops',
   cropRoutes,
 );
-
-// ==========================================
-// Weather
-// ==========================================
 
 app.use(
   '/api/weather',
   weatherRoutes,
 );
 
-// ==========================================
-// Markets
-// ==========================================
-
 app.use(
   '/api/markets',
   marketRoutes,
 );
-
-// ==========================================
-// Market Prices
-// ==========================================
 
 app.use(
   '/api/market-prices',
   marketPriceRoutes,
 );
 
-// ==========================================
-// Bids
-// ==========================================
-
 app.use(
   '/api/bids',
   bidRoutes,
 );
-
-// ==========================================
-// Transactions
-// ==========================================
 
 app.use(
   '/api/transactions',
   transactionRoutes,
 );
 
-// ==========================================
-// AI Assistant
-// ==========================================
-
 app.use(
   '/api/ai',
   aiRoutes,
 );
-
-// ==========================================
-// AI Image Analysis
-// ==========================================
 
 app.use(
   '/api/ai/image',
   aiImageRoutes,
 );
 
-// ==========================================
-// Admin Dashboard
-// ==========================================
-
 app.use(
   '/api/admin',
   adminRoutes,
 );
-
-// ==========================================
-// Admin User Management
-// ==========================================
 
 app.use(
   '/api/admin/users',
   adminUserRoutes,
 );
 
-// ==========================================
-// Marketplace / Sale Listings
-// ==========================================
-
 app.use(
   '/api/sale-listings',
   saleListingRoutes,
 );
 
-// ==========================================
-// Parchi
-// ==========================================
-
 app.use(
   '/api/parchi',
   parchiRoutes,
 );
-
-// ==========================================
-// Storage & Warehouses
-// ==========================================
 
 app.use(
   '/api/storage',
@@ -274,113 +196,194 @@ app.use(
 );
 
 // ==========================================
-// 404 Handler
-// ==========================================
-
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'API endpoint not found',
-    path: req.originalUrl,
-  });
-});
-
-// ==========================================
-// Global Error Handler
+// 404 HANDLER
 // ==========================================
 
 app.use(
-  (error, req, res, next) => {
-    console.error(
-      'Unhandled Server Error:',
-      error,
-    );
-
-    res.status(500).json({
+  (req, res) => {
+    res.status(404).json({
       success: false,
-      message: 'Internal server error.',
+      message:
+        'API endpoint not found',
+      path: req.originalUrl,
     });
   },
 );
 
 // ==========================================
-// Start Server
+// GLOBAL ERROR HANDLER
 // ==========================================
 
-app.listen(PORT, () => {
-  console.log('');
+app.use(
+  (
+    error,
+    req,
+    res,
+    next,
+  ) => {
+    console.error('');
+    console.error(
+      '==========================================',
+    );
+    console.error(
+      '🚨 UNHANDLED SERVER ERROR',
+    );
+    console.error(
+      '==========================================',
+    );
 
-  console.log('🌾 KrishiBandhu Backend');
+    console.error(
+      'Method:',
+      req.method,
+    );
 
-  console.log('-------------------------');
+    console.error(
+      'URL:',
+      req.originalUrl,
+    );
 
-  console.log(
-    `🚀 Server: http://localhost:${PORT}`,
-  );
+    console.error(
+      'Error Name:',
+      error?.name,
+    );
 
-  console.log(
-    `❤️  Health: http://localhost:${PORT}/api/health`,
-  );
+    console.error(
+      'Error Message:',
+      error?.message,
+    );
 
-  console.log(
-    `🔐 Auth: http://localhost:${PORT}/api/auth`,
-  );
+    console.error(
+      'Error Stack:',
+      error?.stack,
+    );
 
-  console.log(
-    `🌱 Crops: http://localhost:${PORT}/api/crops`,
-  );
+    if (error?.errors) {
+      console.error(
+        'Validation Errors:',
+        Object.fromEntries(
+          Object.entries(
+            error.errors,
+          ).map(
+            ([
+              field,
+              validationError,
+            ]) => [
+              field,
+              validationError.message,
+            ],
+          ),
+        ),
+      );
+    }
 
-  console.log(
-    `🌦️ Weather: http://localhost:${PORT}/api/weather?city=Bengaluru`,
-  );
+    console.error(
+      '==========================================',
+    );
+    console.error('');
 
-  console.log(
-    `📈 Markets: http://localhost:${PORT}/api/markets`,
-  );
+    const statusCode =
+      error?.statusCode ||
+      error?.status ||
+      500;
 
-  console.log(
-    `💰 Market Prices: http://localhost:${PORT}/api/market-prices`,
-  );
+    return res
+      .status(
+        statusCode >= 400 &&
+          statusCode < 600
+          ? statusCode
+          : 500,
+      )
+      .json({
+        success: false,
 
-  console.log(
-    `🤝 Bids: http://localhost:${PORT}/api/bids`,
-  );
+        message:
+          process.env.NODE_ENV ===
+          'development'
+            ? error?.message ||
+              'Internal server error.'
+            : 'Internal server error.',
 
-  console.log(
-    `📒 Transactions: http://localhost:${PORT}/api/transactions`,
-  );
+        error:
+          process.env.NODE_ENV ===
+          'development'
+            ? {
+                name:
+                  error?.name,
+                message:
+                  error?.message,
+                stack:
+                  error?.stack,
+              }
+            : undefined,
+      });
+  },
+);
 
-  console.log(
-    `🤖 AI Assistant: http://localhost:${PORT}/api/ai/chat`,
-  );
+// ==========================================
+// START SERVER
+// ==========================================
 
-  console.log(
-    `📸 Crop Analysis: http://localhost:${PORT}/api/ai/image/analyze`,
-  );
-
-  console.log(
-    `🛡️ Admin: http://localhost:${PORT}/api/admin`,
-  );
-
-  console.log(
-    `👥 Admin Users: http://localhost:${PORT}/api/admin/users`,
-  );
-
-  console.log(
-    `🛒 Sale Listings: http://localhost:${PORT}/api/sale-listings`,
-  );
-
-  console.log(
-    `📄 Parchi: http://localhost:${PORT}/api/parchi`,
-  );
-
-  console.log(
-    `🏭 Storage & Warehouses: http://localhost:${PORT}/api/storage`,
-  );
-
-  console.log(
-    `📎 Uploads: http://localhost:${PORT}/uploads`,
-  );
-
-  console.log('');
-});
+app.listen(
+  PORT,
+  () => {
+    console.log('');
+    console.log(
+      '🌾 KrishiBandhu Backend',
+    );
+    console.log(
+      '-------------------------',
+    );
+    console.log(
+      `🚀 Server: http://localhost:${PORT}`,
+    );
+    console.log(
+      `❤️  Health: http://localhost:${PORT}/api/health`,
+    );
+    console.log(
+      `🔐 Auth: http://localhost:${PORT}/api/auth`,
+    );
+    console.log(
+      `🌱 Crops: http://localhost:${PORT}/api/crops`,
+    );
+    console.log(
+      `🌦️ Weather: http://localhost:${PORT}/api/weather?city=Bengaluru`,
+    );
+    console.log(
+      `📈 Markets: http://localhost:${PORT}/api/markets`,
+    );
+    console.log(
+      `💰 Market Prices: http://localhost:${PORT}/api/market-prices`,
+    );
+    console.log(
+      `🤝 Bids: http://localhost:${PORT}/api/bids`,
+    );
+    console.log(
+      `📒 Transactions: http://localhost:${PORT}/api/transactions`,
+    );
+    console.log(
+      `🤖 AI Assistant: http://localhost:${PORT}/api/ai/chat`,
+    );
+    console.log(
+      `📸 Crop Analysis: http://localhost:${PORT}/api/ai/image/analyze`,
+    );
+    console.log(
+      `🛡️ Admin: http://localhost:${PORT}/api/admin`,
+    );
+    console.log(
+      `👥 Admin Users: http://localhost:${PORT}/api/admin/users`,
+    );
+    console.log(
+      `🛒 Sale Listings: http://localhost:${PORT}/api/sale-listings`,
+    );
+    console.log(
+      `📄 Parchi: http://localhost:${PORT}/api/parchi`,
+    );
+    console.log(
+      `🏭 Storage & Warehouses: http://localhost:${PORT}/api/storage`,
+    );
+    console.log(
+      `📎 Uploads: http://localhost:${PORT}/uploads`,
+    );
+    console.log('');
+  },
+);

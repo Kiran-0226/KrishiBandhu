@@ -16,6 +16,7 @@ import {
   Handshake,
   FileText,
   Warehouse,
+  ClipboardList,
 } from 'lucide-react';
 
 import { NavLink } from 'react-router-dom';
@@ -152,9 +153,9 @@ const adminMenuItems = [
     path: '/admin/parchi',
   },
   {
-    label: 'Storage',
-    icon: Warehouse,
-    path: '/storage',
+    label: 'Storage Requests',
+    icon: ClipboardList,
+    path: '/admin/storage-requests',
   },
   {
     label: 'Transactions',

@@ -13,6 +13,12 @@ import {
   Filter,
   RefreshCw,
   X,
+  Sparkles,
+  ClipboardList,
+  Clock3,
+  CalendarDays,
+  XCircle,
+  Send,
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -22,19 +28,15 @@ import './Storage.css';
 const API_URL = 'http://localhost:5000/api';
 
 function Storage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
-  const [facilities, setFacilities] =
-    useState([]);
+  const [facilities, setFacilities] = useState([]);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [error, setError] =
-    useState('');
+  const [error, setError] = useState('');
 
-  const [search, setSearch] =
-    useState('');
+  const [search, setSearch] = useState('');
 
   const [selectedType, setSelectedType] =
     useState('all');
@@ -45,11 +47,56 @@ function Storage() {
   const [selectedFacility, setSelectedFacility] =
     useState(null);
 
-  /*
-   * ==========================================
-   * Fetch Storage Facilities
-   * ==========================================
-   */
+  // ==========================================
+  // Smart Storage Finder
+  // ==========================================
+
+  const [selectedCrop, setSelectedCrop] =
+    useState('');
+
+  const [storageQuantity, setStorageQuantity] =
+    useState('');
+
+  const [storageUnit, setStorageUnit] =
+    useState('kg');
+
+  const [finderSubmitted, setFinderSubmitted] =
+    useState(false);
+
+  // ==========================================
+  // Farmer Storage Requests
+  // ==========================================
+
+  const [myRequests, setMyRequests] =
+    useState([]);
+
+  const [requestsLoading, setRequestsLoading] =
+    useState(false);
+
+  const [requestFacility, setRequestFacility] =
+    useState(null);
+
+  const [requestStartDate, setRequestStartDate] =
+    useState('');
+
+  const [requestDurationMonths, setRequestDurationMonths] =
+    useState('1');
+
+  const [requestNotes, setRequestNotes] =
+    useState('');
+
+  const [requestSubmitting, setRequestSubmitting] =
+    useState(false);
+
+  const [requestError, setRequestError] =
+    useState('');
+
+  const [requestSuccess, setRequestSuccess] =
+    useState('');
+
+  // ==========================================
+  // Fetch Storage Facilities
+  // ==========================================
 
   const fetchStorage = async () => {
     if (!token) {
@@ -70,8 +117,7 @@ function Storage() {
         },
       );
 
-      const data =
-        await response.json();
+      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
@@ -80,9 +126,7 @@ function Storage() {
         );
       }
 
-      setFacilities(
-        data.data || [],
-      );
+      setFacilities(data.data || []);
     } catch (err) {
       console.error(
         'Storage fetch error:',
@@ -98,15 +142,51 @@ function Storage() {
     }
   };
 
+  const fetchMyRequests = async () => {
+    if (!token || user?.role !== 'farmer') {
+      return;
+    }
+
+    try {
+      setRequestsLoading(true);
+
+      const response = await fetch(
+        `${API_URL}/storage/requests/mine`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            'Failed to load your storage requests.',
+        );
+      }
+
+      setMyRequests(data.data || []);
+    } catch (err) {
+      console.error(
+        'Storage requests fetch error:',
+        err,
+      );
+    } finally {
+      setRequestsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchStorage();
-  }, [token]);
+    fetchMyRequests();
+  }, [token, user?.role]);
 
-  /*
-   * ==========================================
-   * Statistics
-   * ==========================================
-   */
+  // ==========================================
+  // Statistics
+  // ==========================================
 
   const coldStorageCount =
     facilities.filter(
@@ -120,11 +200,9 @@ function Storage() {
         facility.type === 'warehouse',
     ).length;
 
-  /*
-   * ==========================================
-   * District List
-   * ==========================================
-   */
+  // ==========================================
+  // District List
+  // ==========================================
 
   const districts = useMemo(() => {
     return [
@@ -139,87 +217,489 @@ function Storage() {
     ].sort();
   }, [facilities]);
 
-  /*
-   * ==========================================
-   * Filter Facilities
-   * ==========================================
-   */
+  // ==========================================
+  // Crop List
+  // ==========================================
 
-  const filteredFacilities =
+  const availableCrops = useMemo(() => {
+    return [
+      ...new Set(
+        facilities.flatMap(
+          (facility) =>
+            facility.suitableCrops || [],
+        ),
+      ),
+    ].sort();
+  }, [facilities]);
+
+  // ==========================================
+  // Unit Conversion
+  // ==========================================
+
+  const convertToKg = (
+    value,
+    unit,
+  ) => {
+    const numericValue =
+      Number(value) || 0;
+
+    switch (unit) {
+      case 'kg':
+        return numericValue;
+
+      case 'quintal':
+        return numericValue * 100;
+
+      case 'ton':
+        return numericValue * 1000;
+
+      default:
+        return numericValue;
+    }
+  };
+
+  const convertFromKg = (
+    value,
+    unit,
+  ) => {
+    switch (unit) {
+      case 'kg':
+        return value;
+
+      case 'quintal':
+        return value / 100;
+
+      case 'ton':
+        return value / 1000;
+
+      default:
+        return value;
+    }
+  };
+
+  // ==========================================
+  // Normal Facility Filters
+  // ==========================================
+
+  const filteredFacilities = useMemo(() => {
+    const searchValue =
+      search.trim().toLowerCase();
+
+    return facilities.filter(
+      (facility) => {
+        // Type filter
+        if (
+          selectedType !== 'all' &&
+          facility.type !== selectedType
+        ) {
+          return false;
+        }
+
+        // District filter
+        if (
+          selectedDistrict !== 'all' &&
+          facility.location?.district !==
+            selectedDistrict
+        ) {
+          return false;
+        }
+
+        // Search filter
+        if (searchValue) {
+          const searchableText = [
+            facility.name,
+            facility.description,
+            facility.location?.district,
+            facility.location?.village,
+            ...(facility.suitableCrops || []),
+          ]
+            .join(' ')
+            .toLowerCase();
+
+          if (
+            !searchableText.includes(
+              searchValue,
+            )
+          ) {
+            return false;
+          }
+        }
+
+        return true;
+      },
+    );
+  }, [
+    facilities,
+    search,
+    selectedType,
+    selectedDistrict,
+  ]);
+
+  // ==========================================
+  // Smart Matching + Ranking
+  // ==========================================
+
+  const matchedFacilities =
     useMemo(() => {
-      const searchValue =
-        search.trim().toLowerCase();
+      if (
+        !finderSubmitted ||
+        !selectedCrop ||
+        !storageQuantity ||
+        Number(storageQuantity) <= 0
+      ) {
+        return [];
+      }
 
-      return facilities.filter(
-        (facility) => {
-          /*
-           * Type
-           */
-          if (
-            selectedType !== 'all' &&
-            facility.type !==
-              selectedType
-          ) {
-            return false;
-          }
+      const requestedQuantityKg =
+        convertToKg(
+          storageQuantity,
+          storageUnit,
+        );
 
-          /*
-           * District
-           */
-          if (
-            selectedDistrict !==
-              'all' &&
-            facility.location?.district !==
-              selectedDistrict
-          ) {
-            return false;
-          }
+      const cropValue =
+        selectedCrop
+          .trim()
+          .toLowerCase();
 
-          /*
-           * Search
-           */
-          if (searchValue) {
-            const searchableText = [
-              facility.name,
+      // Crops for which temperature-controlled
+      // storage can commonly be useful.
+      const coldStoragePreferredCrops = [
+        'apple',
+        'banana',
+        'grapes',
+        'mango',
+        'orange',
+        'pomegranate',
+        'strawberry',
+        'tomato',
+        'potato',
+        'onion',
+        'carrot',
+        'cabbage',
+        'cauliflower',
+        'leafy vegetables',
+        'vegetables',
+        'fruits',
+      ];
 
-              facility.description,
+      const cropNeedsColdStorage =
+        coldStoragePreferredCrops.includes(
+          cropValue,
+        );
 
-              facility.location
-                ?.district,
+      // ----------------------------------------
+      // Find valid matches
+      // ----------------------------------------
 
-              facility.location
-                ?.village,
+      const matches =
+        filteredFacilities.filter(
+          (facility) => {
+            const suitableCrops =
+              (
+                facility.suitableCrops ||
+                []
+              ).map((crop) =>
+                crop
+                  .trim()
+                  .toLowerCase(),
+              );
 
-              ...(facility.suitableCrops ||
-                []),
-            ]
-              .join(' ')
-              .toLowerCase();
+            // Crop suitability
+            const cropMatches =
+              suitableCrops.includes(
+                cropValue,
+              );
+
+            if (!cropMatches) {
+              return false;
+            }
+
+            // Capacity
+            const facilityUnit =
+              facility.capacityUnit ||
+              'ton';
+
+            const availableCapacityKg =
+              convertToKg(
+                facility.availableCapacity,
+                facilityUnit,
+              );
 
             if (
-              !searchableText.includes(
-                searchValue,
-              )
+              availableCapacityKg <
+              requestedQuantityKg
             ) {
               return false;
             }
+
+            return true;
+          },
+        );
+
+      if (matches.length === 0) {
+        return [];
+      }
+
+      // ----------------------------------------
+      // Charge range
+      // ----------------------------------------
+
+      const charges = matches
+        .map(
+          (facility) =>
+            Number(
+              facility.storageCharges
+                ?.amount,
+            ) || 0,
+        )
+        .filter(
+          (charge) => charge > 0,
+        );
+
+      const lowestCharge =
+        charges.length > 0
+          ? Math.min(...charges)
+          : 0;
+
+      const highestCharge =
+        charges.length > 0
+          ? Math.max(...charges)
+          : 0;
+
+      // ----------------------------------------
+      // Rank facilities
+      // ----------------------------------------
+
+      const rankedMatches =
+        matches.map((facility) => {
+          const facilityUnit =
+            facility.capacityUnit ||
+            'ton';
+
+          const availableCapacityKg =
+            convertToKg(
+              facility.availableCapacity,
+              facilityUnit,
+            );
+
+          const capacityUtilization =
+            availableCapacityKg > 0
+              ? requestedQuantityKg /
+                availableCapacityKg
+              : 1;
+
+          // ==============================
+          // Crop Suitability — 45 points
+          // ==============================
+
+          const cropScore = 45;
+
+          // ==============================
+          // Capacity Fit — 25 points
+          // ==============================
+
+          let capacityScore = 0;
+
+          if (
+            capacityUtilization <= 0.25
+          ) {
+            capacityScore = 25;
+          } else if (
+            capacityUtilization <= 0.5
+          ) {
+            capacityScore = 21;
+          } else if (
+            capacityUtilization <= 0.75
+          ) {
+            capacityScore = 17;
+          } else if (
+            capacityUtilization <= 0.9
+          ) {
+            capacityScore = 12;
+          } else {
+            capacityScore = 8;
           }
 
-          return true;
+          // ==============================
+          // Storage Charge — 20 points
+          // ==============================
+
+          const facilityCharge =
+            Number(
+              facility.storageCharges
+                ?.amount,
+            ) || 0;
+
+          let priceScore = 10;
+
+          if (
+            lowestCharge > 0 &&
+            highestCharge >
+              lowestCharge &&
+            facilityCharge > 0
+          ) {
+            const priceRatio =
+              (highestCharge -
+                facilityCharge) /
+              (highestCharge -
+                lowestCharge);
+
+            priceScore =
+              5 +
+              Math.round(
+                priceRatio * 15,
+              );
+          } else if (
+            lowestCharge > 0 &&
+            facilityCharge ===
+              lowestCharge
+          ) {
+            priceScore = 20;
+          }
+
+          // ==============================
+          // Storage Type Suitability
+          // — 10 points
+          // ==============================
+
+          let storageTypeScore = 0;
+
+          if (
+            cropNeedsColdStorage &&
+            facility.type ===
+              'cold_storage'
+          ) {
+            storageTypeScore = 10;
+          } else if (
+            !cropNeedsColdStorage &&
+            facility.type ===
+              'warehouse'
+          ) {
+            storageTypeScore = 10;
+          }
+
+          // --------------------------------
+          // Final score
+          // --------------------------------
+
+          const totalScore =
+            cropScore +
+            capacityScore +
+            priceScore +
+            storageTypeScore;
+
+          return {
+            ...facility,
+
+            matchingScore:
+              totalScore,
+
+            matchingBreakdown: {
+              cropScore,
+              capacityScore,
+              priceScore,
+              storageTypeScore,
+            },
+
+            capacityUtilization,
+          };
+        });
+
+      // ----------------------------------------
+      // Sort highest score first
+      // ----------------------------------------
+
+      rankedMatches.sort(
+        (a, b) => {
+          if (
+            b.matchingScore !==
+            a.matchingScore
+          ) {
+            return (
+              b.matchingScore -
+              a.matchingScore
+            );
+          }
+
+          // If scores are equal,
+          // lower charge comes first.
+          const aCharge =
+            Number(
+              a.storageCharges
+                ?.amount,
+            ) || 0;
+
+          const bCharge =
+            Number(
+              b.storageCharges
+                ?.amount,
+            ) || 0;
+
+          return (
+            aCharge -
+            bCharge
+          );
         },
       );
+
+      return rankedMatches;
     }, [
-      facilities,
-      search,
-      selectedType,
-      selectedDistrict,
+      filteredFacilities,
+      finderSubmitted,
+      selectedCrop,
+      storageQuantity,
+      storageUnit,
     ]);
 
-  /*
-   * ==========================================
-   * Format Currency
-   * ==========================================
-   */
+  // ==========================================
+  // Find Storage
+  // ==========================================
+
+  const handleFindStorage = () => {
+    if (
+      !selectedCrop ||
+      !storageQuantity ||
+      Number(storageQuantity) <= 0
+    ) {
+      return;
+    }
+
+    setFinderSubmitted(true);
+  };
+
+  // ==========================================
+  // Reset Finder
+  // ==========================================
+
+  const resetFinder = () => {
+    setSelectedCrop('');
+    setStorageQuantity('');
+    setStorageUnit('kg');
+    setFinderSubmitted(false);
+  };
+
+  // ==========================================
+  // Reset Normal Filters
+  // ==========================================
+
+  const resetFilters = () => {
+    setSearch('');
+    setSelectedType('all');
+    setSelectedDistrict('all');
+  };
+
+  // ==========================================
+  // Display Facilities
+  // ==========================================
+
+  const displayFacilities =
+    finderSubmitted
+      ? matchedFacilities
+      : filteredFacilities;
+
+  // ==========================================
+  // Currency
+  // ==========================================
 
   const formatCurrency = (
     amount,
@@ -234,29 +714,295 @@ function Storage() {
     ).format(amount || 0);
   };
 
-  /*
-   * ==========================================
-   * Reset Filters
-   * ==========================================
-   */
+  // ==========================================
+  // Storage Request Helpers
+  // ==========================================
 
-  const resetFilters = () => {
-    setSearch('');
-    setSelectedType('all');
-    setSelectedDistrict('all');
+  const getDefaultRequestDate = () => {
+    const date = new Date();
+    date.setDate(date.getDate() + 1);
+
+    const year = date.getFullYear();
+    const month = String(
+      date.getMonth() + 1,
+    ).padStart(2, '0');
+    const day = String(
+      date.getDate(),
+    ).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   };
 
-  /*
-   * ==========================================
-   * Loading State
-   * ==========================================
-   */
+  const openStorageRequest = (facility) => {
+    if (user?.role !== 'farmer') {
+      return;
+    }
+
+    if (
+      !finderSubmitted ||
+      !selectedCrop ||
+      !storageQuantity ||
+      Number(storageQuantity) <= 0
+    ) {
+      setRequestError(
+        'Use Find Matching Storage first, then choose a suitable facility.',
+      );
+      return;
+    }
+
+    const existingRequest =
+      getExistingStorageRequest(facility);
+
+    if (existingRequest) {
+      setRequestError(
+        existingRequest.status === 'approved'
+          ? 'Storage for this crop and quantity has already been approved at this facility.'
+          : 'You already have a pending storage request for this crop and quantity at this facility.',
+      );
+      return;
+    }
+
+    setRequestFacility(facility);
+    setRequestStartDate(
+      getDefaultRequestDate(),
+    );
+    setRequestDurationMonths('1');
+    setRequestNotes('');
+    setRequestError('');
+    setRequestSuccess('');
+  };
+
+  const closeStorageRequest = () => {
+    if (requestSubmitting) {
+      return;
+    }
+
+    setRequestFacility(null);
+    setRequestError('');
+    setRequestNotes('');
+  };
+
+  const submitStorageRequest = async () => {
+    if (!token || !requestFacility) {
+      return;
+    }
+
+    const quantity = Number(
+      storageQuantity,
+    );
+
+    const durationMonths = Number(
+      requestDurationMonths,
+    );
+
+    if (
+      !selectedCrop ||
+      !quantity ||
+      quantity <= 0
+    ) {
+      setRequestError(
+        'Please provide a valid crop and quantity.',
+      );
+      return;
+    }
+
+    if (!requestStartDate) {
+      setRequestError(
+        'Please select a storage start date.',
+      );
+      return;
+    }
+
+    if (
+      !durationMonths ||
+      durationMonths < 1
+    ) {
+      setRequestError(
+        'Please select a valid storage duration.',
+      );
+      return;
+    }
+
+    try {
+      setRequestSubmitting(true);
+      setRequestError('');
+
+      const response = await fetch(
+        `${API_URL}/storage/requests`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            storageFacility: requestFacility._id,
+            crop: selectedCrop,
+            quantity,
+            unit: storageUnit,
+            startDate: requestStartDate,
+            durationMonths,
+            notes: requestNotes.trim(),
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            'Unable to create storage request.',
+        );
+      }
+
+      setRequestFacility(null);
+      setRequestNotes('');
+      setRequestError('');
+      setRequestSuccess(
+        'Storage request submitted successfully. You can track its status below.',
+      );
+
+      await fetchMyRequests();
+    } catch (err) {
+      console.error(
+        'Storage request submission error:',
+        err,
+      );
+
+      setRequestError(
+        err.message ||
+          'Unable to create storage request.',
+      );
+    } finally {
+      setRequestSubmitting(false);
+    }
+  };
+
+  const formatRequestStatus = (status) => {
+    const labels = {
+      pending: 'Pending',
+      approved: 'Approved',
+      rejected: 'Rejected',
+      cancelled: 'Cancelled',
+      completed: 'Completed',
+    };
+
+    return labels[status] || status;
+  };
+
+  const activeStorageRequestStatuses = [
+    'pending',
+    'approved',
+  ];
+
+  const getExistingStorageRequest = (facility) => {
+    if (
+      !facility?._id ||
+      !selectedCrop ||
+      !storageQuantity ||
+      Number(storageQuantity) <= 0
+    ) {
+      return null;
+    }
+
+    const requestedQuantityKg = convertToKg(
+      storageQuantity,
+      storageUnit,
+    );
+
+    return (
+      myRequests.find((request) => {
+        if (
+          !activeStorageRequestStatuses.includes(
+            request.status,
+          )
+        ) {
+          return false;
+        }
+
+        const requestFacilityId =
+          typeof request.storageFacility === 'object'
+            ? request.storageFacility?._id
+            : request.storageFacility;
+
+        const requestQuantityKg =
+          Number(request.quantityInKg) > 0
+            ? Number(request.quantityInKg)
+            : convertToKg(
+                request.quantity,
+                request.unit,
+              );
+
+        const sameFacility =
+          String(requestFacilityId) ===
+          String(facility._id);
+
+        const sameCrop =
+          String(request.crop || '')
+            .trim()
+            .toLowerCase() ===
+          String(selectedCrop || '')
+            .trim()
+            .toLowerCase();
+
+        const sameQuantity =
+          Math.abs(
+            requestQuantityKg -
+              requestedQuantityKg,
+          ) < 0.001;
+
+        return (
+          sameFacility &&
+          sameCrop &&
+          sameQuantity
+        );
+      }) || null
+    );
+  };
+
+  const getStorageRequestButtonLabel = (
+    request,
+  ) => {
+    if (!request) {
+      return 'Request Storage';
+    }
+
+    if (request.status === 'approved') {
+      return 'Storage Approved';
+    }
+
+    return 'Request Pending';
+  };
+
+  const requestStatusIcon = (status) => {
+    if (
+      status === 'approved' ||
+      status === 'completed'
+    ) {
+      return CheckCircle2;
+    }
+
+    if (
+      status === 'rejected' ||
+      status === 'cancelled'
+    ) {
+      return XCircle;
+    }
+
+    return Clock3;
+  };
+
+  // ==========================================
+  // Loading
+  // ==========================================
 
   if (loading) {
     return (
       <div className="storage-page">
 
         <div className="storage-loading">
+
           <RefreshCw
             size={28}
             className="storage-loading-icon"
@@ -265,17 +1011,16 @@ function Storage() {
           <p>
             Loading storage facilities...
           </p>
+
         </div>
 
       </div>
     );
   }
 
-  /*
-   * ==========================================
-   * Main UI
-   * ==========================================
-   */
+  // ==========================================
+  // Main UI
+  // ==========================================
 
   return (
     <div className="storage-page">
@@ -323,6 +1068,130 @@ function Storage() {
       </section>
 
 
+      {user?.role === 'farmer' && (
+        <>
+          {requestSuccess && (
+            <div className="storage-request-success">
+              <CheckCircle2 size={17} />
+              <span>{requestSuccess}</span>
+              <button
+                type="button"
+                onClick={() => setRequestSuccess('')}
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
+
+          <section className="storage-requests-panel">
+            <div className="storage-requests-header">
+              <div className="storage-requests-title">
+                <div className="storage-requests-icon">
+                  <ClipboardList size={20} />
+                </div>
+                <div>
+                  <h2>My Storage Requests</h2>
+                  <p>Track requests you have submitted to storage facilities.</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="storage-requests-refresh"
+                onClick={fetchMyRequests}
+                disabled={requestsLoading}
+              >
+                <RefreshCw
+                  size={15}
+                  className={
+                    requestsLoading
+                      ? 'storage-loading-spin'
+                      : ''
+                  }
+                />
+                Refresh
+              </button>
+            </div>
+
+            {requestsLoading ? (
+              <div className="storage-requests-empty">
+                <RefreshCw
+                  size={22}
+                  className="storage-loading-spin"
+                />
+                Loading your requests...
+              </div>
+            ) : myRequests.length === 0 ? (
+              <div className="storage-requests-empty">
+                <ClipboardList size={25} />
+                <strong>No storage requests yet</strong>
+                <span>Use Smart Storage Finder below to request storage.</span>
+              </div>
+            ) : (
+              <div className="storage-request-list">
+                {myRequests.map((request) => {
+                  const StatusIcon = requestStatusIcon(
+                    request.status,
+                  );
+
+                  return (
+                    <div
+                      className="storage-request-row"
+                      key={request._id}
+                    >
+                      <div className="storage-request-main">
+                        <div className="storage-request-crop">
+                          <strong>{request.crop}</strong>
+                          <span
+                            className={`storage-request-status ${request.status}`}
+                          >
+                            <StatusIcon size={13} />
+                            {formatRequestStatus(request.status)}
+                          </span>
+                        </div>
+
+                        <span className="storage-request-facility">
+                          <Warehouse size={14} />
+                          {request.storageFacility?.name || 'Storage facility'}
+                        </span>
+                      </div>
+
+                      <div className="storage-request-meta">
+                        <span>
+                          <Package size={14} />
+                          {request.quantity} {request.unit}
+                        </span>
+                        <span>
+                          <CalendarDays size={14} />
+                          {new Date(request.startDate).toLocaleDateString(
+                            'en-IN',
+                            {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric',
+                            },
+                          )}
+                        </span>
+                        <strong>
+                          {formatCurrency(request.estimatedTotalCost)}
+                        </strong>
+                      </div>
+
+                      {request.adminNote && (
+                        <div className="storage-request-admin-note">
+                          <strong>Admin Note:</strong> {request.adminNote}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        </>
+      )}
+
+
       {/* ======================================
           Summary Cards
       ====================================== */}
@@ -336,6 +1205,7 @@ function Storage() {
           </div>
 
           <div>
+
             <span>
               Cold Storage
             </span>
@@ -347,6 +1217,7 @@ function Storage() {
             <small>
               Temperature-controlled facilities
             </small>
+
           </div>
 
         </div>
@@ -359,6 +1230,7 @@ function Storage() {
           </div>
 
           <div>
+
             <span>
               Warehouses
             </span>
@@ -370,6 +1242,7 @@ function Storage() {
             <small>
               Dry agricultural storage
             </small>
+
           </div>
 
         </div>
@@ -382,6 +1255,7 @@ function Storage() {
           </div>
 
           <div>
+
             <span>
               Total Facilities
             </span>
@@ -393,6 +1267,7 @@ function Storage() {
             <small>
               Available through KrishiBandhu
             </small>
+
           </div>
 
         </div>
@@ -414,11 +1289,13 @@ function Storage() {
             type="text"
             placeholder="Search facility, district or crop..."
             value={search}
-            onChange={(event) =>
+            onChange={(event) => {
               setSearch(
                 event.target.value,
-              )
-            }
+              );
+
+              setFinderSubmitted(false);
+            }}
           />
 
           {search && (
@@ -446,12 +1323,15 @@ function Storage() {
 
           <select
             value={selectedDistrict}
-            onChange={(event) =>
+            onChange={(event) => {
               setSelectedDistrict(
                 event.target.value,
-              )
-            }
+              );
+
+              setFinderSubmitted(false);
+            }}
           >
+
             <option value="all">
               All Districts
             </option>
@@ -466,11 +1346,270 @@ function Storage() {
                 </option>
               ),
             )}
+
           </select>
 
         </div>
 
       </section>
+
+
+      {/* ======================================
+          Smart Storage Finder
+      ====================================== */}
+
+      <section className="storage-match-panel">
+
+        <div className="storage-match-header">
+
+          <div className="storage-match-icon">
+            <Sparkles size={22} />
+          </div>
+
+          <div>
+
+            <h2>
+              Find Storage for Your Crop
+            </h2>
+
+            <p>
+              We'll match your crop,
+              quantity and preferred district
+              with suitable facilities.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div className="storage-match-form">
+
+          {/* Crop */}
+
+          <div className="storage-match-field">
+
+            <label>
+              Crop
+            </label>
+
+            <select
+              value={selectedCrop}
+              onChange={(event) => {
+                setSelectedCrop(
+                  event.target.value,
+                );
+
+                setFinderSubmitted(false);
+              }}
+            >
+
+              <option value="">
+                Select crop
+              </option>
+
+              {availableCrops.map(
+                (crop) => (
+                  <option
+                    key={crop}
+                    value={crop}
+                  >
+                    {crop}
+                  </option>
+                ),
+              )}
+
+            </select>
+
+          </div>
+
+
+          {/* Quantity */}
+
+          <div className="storage-match-field">
+
+            <label>
+              Quantity
+            </label>
+
+            <div className="storage-quantity-input">
+
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Enter quantity"
+                value={storageQuantity}
+                onChange={(event) => {
+                  setStorageQuantity(
+                    event.target.value,
+                  );
+
+                  setFinderSubmitted(false);
+                }}
+              />
+
+              <select
+                value={storageUnit}
+                onChange={(event) => {
+                  setStorageUnit(
+                    event.target.value,
+                  );
+
+                  setFinderSubmitted(false);
+                }}
+              >
+
+                <option value="kg">
+                  kg
+                </option>
+
+                <option value="quintal">
+                  quintal
+                </option>
+
+                <option value="ton">
+                  ton
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+
+          {/* District */}
+
+          <div className="storage-match-field">
+
+            <label>
+              Preferred District
+            </label>
+
+            <select
+              value={selectedDistrict}
+              onChange={(event) => {
+                setSelectedDistrict(
+                  event.target.value,
+                );
+
+                setFinderSubmitted(false);
+              }}
+            >
+
+              <option value="all">
+                Any District
+              </option>
+
+              {districts.map(
+                (district) => (
+                  <option
+                    key={district}
+                    value={district}
+                  >
+                    {district}
+                  </option>
+                ),
+              )}
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        {/* Finder Actions */}
+
+        <div className="storage-match-actions">
+
+          <button
+            type="button"
+            className="storage-find-button"
+            onClick={
+              handleFindStorage
+            }
+            disabled={
+              !selectedCrop ||
+              !storageQuantity ||
+              Number(storageQuantity) <= 0
+            }
+          >
+
+            <Search size={17} />
+
+            Find Matching Storage
+
+          </button>
+
+
+          {finderSubmitted && (
+            <button
+              type="button"
+              className="storage-reset-finder"
+              onClick={
+                resetFinder
+              }
+            >
+
+              <X size={16} />
+
+              Reset
+
+            </button>
+          )}
+
+        </div>
+
+
+        {!selectedCrop &&
+          storageQuantity && (
+          <p className="storage-finder-hint">
+            Please select a crop.
+          </p>
+        )}
+
+      </section>
+
+
+      {/* ======================================
+          Matching Result Banner
+      ====================================== */}
+
+      {finderSubmitted && (
+        <div className="storage-match-result">
+
+          <div className="storage-match-result-icon">
+            <Sparkles size={19} />
+          </div>
+
+          <div>
+
+            <strong>
+              {matchedFacilities.length > 0
+                ? `${matchedFacilities.length} matching storage ${
+                    matchedFacilities.length === 1
+                      ? 'facility'
+                      : 'facilities'
+                  } found`
+                : 'No matching storage found'}
+            </strong>
+
+            <span>
+              {storageQuantity}{' '}
+              {storageUnit} of{' '}
+              {selectedCrop}
+
+              {selectedDistrict !==
+                'all' &&
+                ` in ${selectedDistrict}`}
+            </span>
+
+          </div>
+
+        </div>
+      )}
 
 
       {/* ======================================
@@ -486,13 +1625,15 @@ function Storage() {
               ? 'active'
               : ''
           }
-          onClick={() =>
-            setSelectedType('all')
-          }
+          onClick={() => {
+            setSelectedType('all');
+            setFinderSubmitted(false);
+          }}
         >
           <Package size={17} />
           All Facilities
         </button>
+
 
         <button
           type="button"
@@ -502,15 +1643,18 @@ function Storage() {
               ? 'active'
               : ''
           }
-          onClick={() =>
+          onClick={() => {
             setSelectedType(
               'cold_storage',
-            )
-          }
+            );
+
+            setFinderSubmitted(false);
+          }}
         >
           <Snowflake size={17} />
           Cold Storage
         </button>
+
 
         <button
           type="button"
@@ -520,17 +1664,63 @@ function Storage() {
               ? 'active'
               : ''
           }
-          onClick={() =>
+          onClick={() => {
             setSelectedType(
               'warehouse',
-            )
-          }
+            );
+
+            setFinderSubmitted(false);
+          }}
         >
           <Warehouse size={17} />
           Warehouses
         </button>
 
       </section>
+
+
+      {/* ======================================
+          Result Information
+      ====================================== */}
+
+      {!error && (
+        <div className="storage-result-bar">
+
+          <div>
+
+            Showing{' '}
+
+            <strong>
+              {displayFacilities.length}
+            </strong>{' '}
+
+            {finderSubmitted
+              ? 'matching facilities'
+              : `of ${facilities.length} facilities`}
+
+          </div>
+
+
+          {(search ||
+            selectedType !== 'all' ||
+            selectedDistrict !==
+              'all' ||
+            finderSubmitted) && (
+
+            <button
+              type="button"
+              onClick={() => {
+                resetFilters();
+                resetFinder();
+              }}
+            >
+              Clear Filters
+            </button>
+
+          )}
+
+        </div>
+      )}
 
 
       {/* ======================================
@@ -560,75 +1750,56 @@ function Storage() {
 
 
       {/* ======================================
-          Result Information
-      ====================================== */}
-
-      {!error && (
-        <div className="storage-result-bar">
-
-          <div>
-            Showing{' '}
-            <strong>
-              {filteredFacilities.length}
-            </strong>{' '}
-            of{' '}
-            <strong>
-              {facilities.length}
-            </strong>{' '}
-            facilities
-          </div>
-
-          {(search ||
-            selectedType !== 'all' ||
-            selectedDistrict !==
-              'all') && (
-            <button
-              type="button"
-              onClick={
-                resetFilters
-              }
-            >
-              Clear Filters
-            </button>
-          )}
-
-        </div>
-      )}
-
-
-      {/* ======================================
           Empty State
       ====================================== */}
 
       {!error &&
-        filteredFacilities.length ===
+        displayFacilities.length ===
           0 && (
-          <div className="storage-empty">
 
-            <div className="storage-empty-icon">
+        <div className="storage-empty">
+
+          <div className="storage-empty-icon">
+
+            {finderSubmitted ? (
+              <Sparkles size={32} />
+            ) : (
               <Warehouse size={32} />
-            </div>
-
-            <h2>
-              No storage facilities found
-            </h2>
-
-            <p>
-              Try changing your search or
-              filter options.
-            </p>
-
-            <button
-              type="button"
-              onClick={
-                resetFilters
-              }
-            >
-              Clear Filters
-            </button>
+            )}
 
           </div>
-        )}
+
+
+          <h2>
+
+            {finderSubmitted
+              ? 'No suitable storage found'
+              : 'No storage facilities found'}
+
+          </h2>
+
+
+          <p>
+
+            {finderSubmitted
+              ? `We couldn't find a facility suitable for ${selectedCrop} with ${storageQuantity} ${storageUnit} of required capacity. Try another district, quantity or crop.`
+              : 'Try changing your search or filter options.'}
+
+          </p>
+
+
+          <button
+            type="button"
+            onClick={() => {
+              resetFilters();
+              resetFinder();
+            }}
+          >
+            Clear Filters
+          </button>
+
+        </div>
+      )}
 
 
       {/* ======================================
@@ -636,251 +1807,463 @@ function Storage() {
       ====================================== */}
 
       {!error &&
-        filteredFacilities.length >
+        displayFacilities.length >
           0 && (
-          <section className="storage-grid">
 
-            {filteredFacilities.map(
-              (facility) => {
-                const isColdStorage =
-                  facility.type ===
-                  'cold_storage';
+        <section className="storage-grid">
 
-                const capacity =
-                  Number(
-                    facility.capacity,
-                  ) || 0;
+          {displayFacilities.map(
+            (facility, index) => {
 
-                const availableCapacity =
-                  Number(
-                    facility.availableCapacity,
-                  ) || 0;
+              const isColdStorage =
+                facility.type ===
+                'cold_storage';
 
-                const availability =
-                  capacity > 0
-                    ? Math.round(
-                        (availableCapacity /
-                          capacity) *
-                          100,
-                      )
-                    : 0;
+              const capacity =
+                Number(
+                  facility.capacity,
+                ) || 0;
 
-                return (
-                  <article
-                    key={
-                      facility._id
-                    }
-                    className="storage-card"
-                  >
+              const availableCapacity =
+                Number(
+                  facility.availableCapacity,
+                ) || 0;
 
-                    {/* Card Header */}
+              const availability =
+                capacity > 0
+                  ? Math.round(
+                      (availableCapacity /
+                        capacity) *
+                        100,
+                    )
+                  : 0;
 
-                    <div className="storage-card-top">
+              const requestedKg =
+                finderSubmitted
+                  ? convertToKg(
+                      storageQuantity,
+                      storageUnit,
+                    )
+                  : 0;
 
-                      <div
-                        className={
-                          isColdStorage
-                            ? 'storage-type-icon cold'
-                            : 'storage-type-icon warehouse'
-                        }
-                      >
-                        {isColdStorage ? (
-                          <Snowflake
-                            size={23}
-                          />
-                        ) : (
-                          <Warehouse
-                            size={23}
-                          />
-                        )}
-                      </div>
+              const facilityUnit =
+                facility.capacityUnit ||
+                'ton';
 
-                      <div className="storage-card-type">
+              const availableKg =
+                convertToKg(
+                  availableCapacity,
+                  facilityUnit,
+                );
 
-                        <span>
-                          {isColdStorage
-                            ? 'Cold Storage'
-                            : 'Warehouse'}
-                        </span>
+              const remainingAfterStorage =
+                Math.max(
+                  0,
+                  availableKg -
+                    requestedKg,
+                );
 
-                        {facility.isVerified && (
+              const remainingInFacilityUnit =
+                convertFromKg(
+                  remainingAfterStorage,
+                  facilityUnit,
+                );
+
+              const isRecommended =
+                finderSubmitted &&
+                index === 0;
+
+              return (
+                <article
+                  key={facility._id}
+                  className={
+                    finderSubmitted
+                      ? 'storage-card storage-card-matched'
+                      : 'storage-card'
+                  }
+                >
+
+                  {/* Match Badge */}
+
+                  {finderSubmitted && (
+                    <div
+                      className={
+                        isRecommended
+                          ? 'storage-match-badge storage-recommended-badge'
+                          : 'storage-match-badge'
+                      }
+                    >
+
+                      {isRecommended ? (
+                        <>
+                          <Sparkles size={13} />
+
+                          Recommended
+                        </>
+                      ) : (
+                        <>
                           <CheckCircle2
-                            size={17}
-                            className="verified-icon"
+                            size={13}
                           />
-                        )}
 
-                      </div>
-
-                    </div>
-
-
-                    {/* Name */}
-
-                    <h2>
-                      {facility.name}
-                    </h2>
-
-                    <p className="storage-description">
-                      {facility.description}
-                    </p>
-
-
-                    {/* Location */}
-
-                    <div className="storage-location">
-
-                      <MapPin size={17} />
-
-                      <span>
-                        {facility.location
-                          ?.district}
-                        ,{' '}
-                        {facility.location
-                          ?.state}
-                      </span>
+                          Match Found
+                        </>
+                      )}
 
                     </div>
+                  )}
 
 
-                    {/* Capacity */}
+                  {/* Card Header */}
 
-                    <div className="storage-capacity">
+                  <div className="storage-card-top">
 
-                      <div className="storage-capacity-header">
+                    <div
+                      className={
+                        isColdStorage
+                          ? 'storage-type-icon cold'
+                          : 'storage-type-icon warehouse'
+                      }
+                    >
 
-                        <span>
-                          Available Capacity
-                        </span>
-
-                        <strong>
-                          {
-                            facility.availableCapacity
-                          }{' '}
-                          /
-                          {' '}
-                          {
-                            facility.capacity
-                          }{' '}
-                          {
-                            facility.capacityUnit
-                          }
-                        </strong>
-
-                      </div>
-
-                      <div className="storage-capacity-bar">
-
-                        <div
-                          style={{
-                            width: `${Math.min(
-                              availability,
-                              100,
-                            )}%`,
-                          }}
+                      {isColdStorage ? (
+                        <Snowflake
+                          size={23}
                         />
-
-                      </div>
-
-                      <small>
-                        {availability}% capacity
-                        available
-                      </small>
-
-                    </div>
-
-
-                    {/* Crop Tags */}
-
-                    <div className="storage-crops">
-
-                      {(facility
-                        .suitableCrops ||
-                        [])
-                        .slice(0, 4)
-                        .map(
-                          (crop) => (
-                            <span
-                              key={crop}
-                            >
-                              {crop}
-                            </span>
-                          ),
-                        )}
-
-                      {facility
-                        .suitableCrops
-                        ?.length >
-                        4 && (
-                        <span>
-                          +
-                          {facility
-                            .suitableCrops
-                            .length -
-                            4}
-                        </span>
+                      ) : (
+                        <Warehouse
+                          size={23}
+                        />
                       )}
 
                     </div>
 
 
-                    {/* Details */}
+                    <div className="storage-card-type">
 
-                    <div className="storage-details">
+                      <span>
+                        {isColdStorage
+                          ? 'Cold Storage'
+                          : 'Warehouse'}
+                      </span>
 
-                      {isColdStorage &&
-                        facility.temperatureRange && (
-                          <div>
-                            <Thermometer
-                              size={16}
-                            />
 
-                            <span>
-                              {
-                                facility.temperatureRange
-                              }
-                            </span>
-                          </div>
-                        )}
-
-                      <div>
-                        <IndianRupee
-                          size={16}
+                      {facility.isVerified && (
+                        <CheckCircle2
+                          size={17}
+                          className="verified-icon"
                         />
+                      )}
 
-                        <span>
-                          {formatCurrency(
-                            facility
-                              .storageCharges
-                              ?.amount,
-                          )}{' '}
-                          {
-                            facility
-                              .storageCharges
-                              ?.unit
-                          }
-                        </span>
-                      </div>
+                    </div>
+
+                  </div>
+
+
+                  {/* Name */}
+
+                  <h2>
+                    {facility.name}
+                  </h2>
+
+
+                  {/* Match Score */}
+
+                  {finderSubmitted &&
+                    facility.matchingScore && (
+                    <div className="storage-match-score">
+
+                      <Sparkles size={13} />
+
+                      <strong>
+                        {facility.matchingScore}/100
+                      </strong>
+
+                      <span>
+                        Match score
+                      </span>
+
+                    </div>
+                  )}
+
+
+                  <p className="storage-description">
+                    {facility.description}
+                  </p>
+
+
+                  {/* Location */}
+
+                  <div className="storage-location">
+
+                    <MapPin size={17} />
+
+                    <span>
+
+                      {facility.location
+                        ?.district}
+
+                      ,{' '}
+
+                      {facility.location
+                        ?.state}
+
+                    </span>
+
+                  </div>
+
+
+                  {/* Capacity */}
+
+                  <div className="storage-capacity">
+
+                    <div className="storage-capacity-header">
+
+                      <span>
+                        Available Capacity
+                      </span>
+
+                      <strong>
+
+                        {
+                          facility.availableCapacity
+                        }{' '}
+
+                        /{' '}
+
+                        {
+                          facility.capacity
+                        }{' '}
+
+                        {
+                          facility.capacityUnit
+                        }
+
+                      </strong>
 
                     </div>
 
 
-                    {/* Footer */}
+                    <div className="storage-capacity-bar">
 
-                    <div className="storage-card-footer">
+                      <div
+                        style={{
+                          width: `${Math.min(
+                            availability,
+                            100,
+                          )}%`,
+                        }}
+                      />
 
-                      <div className="storage-demo-badge">
-                        {facility.isVerified ? (
-                          <>
-                            <CheckCircle2
-                              size={14}
-                            />
-                            Verified
-                          </>
-                        ) : (
-                          'Demo Facility'
-                        )}
+                    </div>
+
+
+                    <small>
+                      {availability}% capacity
+                      available
+                    </small>
+
+
+                    {finderSubmitted && (
+                      <div className="storage-after-capacity">
+
+                        <span>
+                          After your storage
+                        </span>
+
+                        <strong>
+
+                          {remainingInFacilityUnit.toLocaleString(
+                            'en-IN',
+                            {
+                              maximumFractionDigits: 2,
+                            },
+                          )}{' '}
+
+                          {
+                            facilityUnit
+                          }
+
+                          {' '}remaining
+
+                        </strong>
+
                       </div>
+                    )}
+
+                  </div>
+
+
+                  {/* Crop Tags */}
+
+                  <div className="storage-crops">
+
+                    {(
+                      facility.suitableCrops ||
+                      []
+                    )
+                      .slice(0, 4)
+                      .map(
+                        (crop) => (
+                          <span
+                            key={crop}
+                            className={
+                              selectedCrop &&
+                              crop.toLowerCase() ===
+                                selectedCrop.toLowerCase()
+                                ? 'crop-match'
+                                : ''
+                            }
+                          >
+                            {crop}
+                          </span>
+                        ),
+                      )}
+
+
+                    {facility
+                      .suitableCrops
+                      ?.length >
+                      4 && (
+                      <span>
+                        +
+                        {facility
+                          .suitableCrops
+                          .length -
+                          4}
+                      </span>
+                    )}
+
+                  </div>
+
+
+                  {/* Details */}
+
+                  <div className="storage-details">
+
+                    {isColdStorage &&
+                      facility.temperatureRange && (
+
+                      <div>
+
+                        <Thermometer
+                          size={16}
+                        />
+
+                        <span>
+                          {
+                            facility.temperatureRange
+                          }
+                        </span>
+
+                      </div>
+
+                    )}
+
+
+                    <div>
+
+                      <IndianRupee
+                        size={16}
+                      />
+
+                      <span>
+
+                        {formatCurrency(
+                          facility
+                            .storageCharges
+                            ?.amount,
+                        )}{' '}
+
+                        {
+                          facility
+                            .storageCharges
+                            ?.unit
+                        }
+
+                      </span>
+
+                    </div>
+
+                  </div>
+
+
+                  {/* Footer */}
+
+                  <div className="storage-card-footer">
+
+                    <div className="storage-demo-badge">
+
+                      {facility.isVerified ? (
+                        <>
+                          <CheckCircle2
+                            size={14}
+                          />
+
+                          Verified
+                        </>
+                      ) : (
+                        'Demo Facility'
+                      )}
+
+                    </div>
+
+
+                    <div className="storage-card-actions">
+
+                      {user?.role === 'farmer' &&
+                        finderSubmitted && (
+                        (() => {
+                          const existingRequest =
+                            getExistingStorageRequest(
+                              facility,
+                            );
+
+                          return (
+                            <button
+                              type="button"
+                              className="storage-request-button"
+                              onClick={() =>
+                                openStorageRequest(
+                                  facility,
+                                )
+                              }
+                              disabled={
+                                Boolean(
+                                  existingRequest,
+                                ) ||
+                                requestSubmitting
+                              }
+                              title={
+                                existingRequest
+                                  ? existingRequest.status ===
+                                    'approved'
+                                    ? 'Storage request already approved.'
+                                    : 'Storage request already pending.'
+                                  : 'Request storage at this facility.'
+                              }
+                            >
+                              {existingRequest ? (
+                                existingRequest.status ===
+                                'approved' ? (
+                                  <CheckCircle2
+                                    size={14}
+                                  />
+                                ) : (
+                                  <Clock3
+                                    size={14}
+                                  />
+                                )
+                              ) : (
+                                <Send size={14} />
+                              )}
+                              {getStorageRequestButtonLabel(
+                                existingRequest,
+                              )}
+                            </button>
+                          );
+                        })()
+                      )}
 
                       <button
                         type="button"
@@ -896,13 +2279,234 @@ function Storage() {
 
                     </div>
 
-                  </article>
-                );
-              },
-            )}
+                  </div>
 
-          </section>
-        )}
+                </article>
+              );
+            },
+          )}
+
+        </section>
+      )}
+
+
+      {requestFacility && (
+        <div
+          className="storage-request-modal-overlay"
+          onClick={(event) => {
+            if (
+              event.target ===
+              event.currentTarget
+            ) {
+              closeStorageRequest();
+            }
+          }}
+        >
+          <div
+            className="storage-request-modal"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
+            <div className="storage-request-modal-header">
+              <div>
+                <p>Storage Request</p>
+                <h2>Request Storage</h2>
+              </div>
+
+              <button
+                type="button"
+                className="storage-request-modal-close"
+                onClick={closeStorageRequest}
+                disabled={requestSubmitting}
+              >
+                <X size={19} />
+              </button>
+            </div>
+
+            <div className="storage-request-modal-body">
+              <div className="storage-request-facility-summary">
+                <div className="storage-request-facility-icon">
+                  {requestFacility.type === 'cold_storage' ? (
+                    <Snowflake size={21} />
+                  ) : (
+                    <Warehouse size={21} />
+                  )}
+                </div>
+                <div>
+                  <strong>{requestFacility.name}</strong>
+                  <span>
+                    {requestFacility.location?.district}, {requestFacility.location?.state}
+                  </span>
+                </div>
+              </div>
+
+              <div className="storage-request-summary-grid">
+                <div>
+                  <span>Crop</span>
+                  <strong>{selectedCrop}</strong>
+                </div>
+                <div>
+                  <span>Quantity</span>
+                  <strong>{storageQuantity} {storageUnit}</strong>
+                </div>
+                <div>
+                  <span>Available Capacity</span>
+                  <strong>
+                    {requestFacility.availableCapacity} {requestFacility.capacityUnit}
+                  </strong>
+                </div>
+                <div>
+                  <span>Storage Charge</span>
+                  <strong>
+                    {formatCurrency(requestFacility.storageCharges?.amount)} {requestFacility.storageCharges?.unit}
+                  </strong>
+                </div>
+              </div>
+
+              {requestError && (
+                <div className="storage-request-error">
+                  <XCircle size={16} />
+                  <span>{requestError}</span>
+                </div>
+              )}
+
+              <div className="storage-request-form-grid">
+                <div className="storage-request-field">
+                  <label htmlFor="storage-request-start-date">
+                    Start Date
+                  </label>
+                  <input
+                    id="storage-request-start-date"
+                    type="date"
+                    value={requestStartDate}
+                    onChange={(event) =>
+                      setRequestStartDate(
+                        event.target.value,
+                      )
+                    }
+                    disabled={requestSubmitting}
+                  />
+                </div>
+
+                <div className="storage-request-field">
+                  <label htmlFor="storage-request-duration">
+                    Duration
+                  </label>
+                  <select
+                    id="storage-request-duration"
+                    value={requestDurationMonths}
+                    onChange={(event) =>
+                      setRequestDurationMonths(
+                        event.target.value,
+                      )
+                    }
+                    disabled={requestSubmitting}
+                  >
+                    {Array.from(
+                      { length: 24 },
+                      (_, index) => index + 1,
+                    ).map((months) => (
+                      <option
+                        key={months}
+                        value={months}
+                      >
+                        {months} month{months !== 1 ? 's' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="storage-request-field">
+                <label htmlFor="storage-request-notes">
+                  Notes <span>(optional)</span>
+                </label>
+                <textarea
+                  id="storage-request-notes"
+                  rows={4}
+                  maxLength={500}
+                  value={requestNotes}
+                  onChange={(event) =>
+                    setRequestNotes(
+                      event.target.value,
+                    )
+                  }
+                  placeholder="Add any special storage requirements or notes..."
+                  disabled={requestSubmitting}
+                />
+                <small>
+                  {requestNotes.length}/500
+                </small>
+              </div>
+
+              <div className="storage-request-cost-preview">
+                <div>
+                  <span>Estimated Monthly Cost</span>
+                  <strong>
+                    {formatCurrency(
+                      (convertToKg(
+                        storageQuantity,
+                        storageUnit,
+                      ) / 1000) *
+                        (Number(
+                          requestFacility.storageCharges?.amount,
+                        ) || 0),
+                    )}
+                  </strong>
+                </div>
+                <div>
+                  <span>Estimated Total Cost</span>
+                  <strong>
+                    {formatCurrency(
+                      ((convertToKg(
+                        storageQuantity,
+                        storageUnit,
+                      ) / 1000) *
+                        (Number(
+                          requestFacility.storageCharges?.amount,
+                        ) || 0)) *
+                        Number(
+                          requestDurationMonths,
+                        ),
+                    )}
+                  </strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="storage-request-modal-footer">
+              <button
+                type="button"
+                className="storage-request-cancel-button"
+                onClick={closeStorageRequest}
+                disabled={requestSubmitting}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="storage-request-submit-button"
+                onClick={submitStorageRequest}
+                disabled={requestSubmitting}
+              >
+                {requestSubmitting ? (
+                  <RefreshCw
+                    size={16}
+                    className="storage-loading-spin"
+                  />
+                ) : (
+                  <Send size={16} />
+                )}
+                {requestSubmitting
+                  ? 'Submitting...'
+                  : 'Submit Request'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
       {/* ======================================
@@ -910,12 +2514,11 @@ function Storage() {
       ====================================== */}
 
       {selectedFacility && (
+
         <div
           className="storage-modal-overlay"
           onClick={() =>
-            setSelectedFacility(
-              null,
-            )
+            setSelectedFacility(null)
           }
         >
 
@@ -930,14 +2533,13 @@ function Storage() {
               type="button"
               className="storage-modal-close"
               onClick={() =>
-                setSelectedFacility(
-                  null,
-                )
+                setSelectedFacility(null)
               }
               aria-label="Close"
             >
               <X size={20} />
             </button>
+
 
             <div className="storage-modal-header">
 
@@ -949,13 +2551,16 @@ function Storage() {
                     : 'storage-modal-icon warehouse'
                 }
               >
+
                 {selectedFacility.type ===
                 'cold_storage' ? (
                   <Snowflake size={27} />
                 ) : (
                   <Warehouse size={27} />
                 )}
+
               </div>
+
 
               <div>
 
@@ -984,6 +2589,7 @@ function Storage() {
                 </h3>
 
                 <p>
+
                   <MapPin size={16} />
 
                   {selectedFacility
@@ -999,10 +2605,13 @@ function Storage() {
                   {selectedFacility
                     .location
                     ?.district}
+
                   ,{' '}
+
                   {selectedFacility
                     .location
                     ?.state}
+
                 </p>
 
               </div>
@@ -1015,24 +2624,31 @@ function Storage() {
                 </h3>
 
                 <p>
+
                   <Package size={16} />
 
                   {
                     selectedFacility
                       .availableCapacity
                   }{' '}
-                  {
-                    selectedFacility
-                      .capacityUnit
-                  } available out of{' '}
-                  {
-                    selectedFacility
-                      .capacity
-                  }{' '}
+
                   {
                     selectedFacility
                       .capacityUnit
                   }
+
+                  {' '}available out of{' '}
+
+                  {
+                    selectedFacility
+                      .capacity
+                  }{' '}
+
+                  {
+                    selectedFacility
+                      .capacityUnit
+                  }
+
                 </p>
 
               </div>
@@ -1040,6 +2656,7 @@ function Storage() {
 
               {selectedFacility
                 .temperatureRange && (
+
                 <div className="storage-modal-section">
 
                   <h3>
@@ -1047,6 +2664,7 @@ function Storage() {
                   </h3>
 
                   <p>
+
                     <Thermometer
                       size={16}
                     />
@@ -1055,9 +2673,11 @@ function Storage() {
                       selectedFacility
                         .temperatureRange
                     }
+
                   </p>
 
                 </div>
+
               )}
 
 
@@ -1095,6 +2715,7 @@ function Storage() {
                 </h3>
 
                 <p>
+
                   <IndianRupee
                     size={16}
                   />
@@ -1104,11 +2725,13 @@ function Storage() {
                       .storageCharges
                       ?.amount,
                   )}{' '}
+
                   {
                     selectedFacility
                       .storageCharges
                       ?.unit
                   }
+
                 </p>
 
               </div>
@@ -1121,6 +2744,7 @@ function Storage() {
                 </h3>
 
                 <p>
+
                   <Phone size={16} />
 
                   {
@@ -1129,6 +2753,7 @@ function Storage() {
                       ?.phone ||
                     'Contact information unavailable'
                   }
+
                 </p>
 
               </div>
@@ -1154,10 +2779,63 @@ function Storage() {
 
             <div className="storage-modal-footer">
 
+              {user?.role === 'farmer' &&
+                finderSubmitted && (
+                (() => {
+                  const existingRequest =
+                    getExistingStorageRequest(
+                      selectedFacility,
+                    );
+
+                  return (
+                    <button
+                      type="button"
+                      className="storage-request-modal-button"
+                      onClick={() => {
+                        openStorageRequest(
+                          selectedFacility,
+                        );
+
+                        if (!existingRequest) {
+                          setSelectedFacility(null);
+                        }
+                      }}
+                      disabled={
+                        Boolean(existingRequest) ||
+                        requestSubmitting
+                      }
+                      title={
+                        existingRequest
+                          ? existingRequest.status ===
+                            'approved'
+                            ? 'Storage request already approved.'
+                            : 'Storage request already pending.'
+                          : 'Request storage at this facility.'
+                      }
+                    >
+                      {existingRequest ? (
+                        existingRequest.status ===
+                        'approved' ? (
+                          <CheckCircle2 size={17} />
+                        ) : (
+                          <Clock3 size={17} />
+                        )
+                      ) : (
+                        <Send size={17} />
+                      )}
+                      {getStorageRequestButtonLabel(
+                        existingRequest,
+                      )}
+                    </button>
+                  );
+                })()
+              )}
+
               <button
                 type="button"
                 className="storage-call-button"
                 onClick={() => {
+
                   const phone =
                     selectedFacility
                       .contact
@@ -1167,10 +2845,14 @@ function Storage() {
                     window.location.href =
                       `tel:${phone}`;
                   }
+
                 }}
               >
+
                 <Phone size={17} />
+
                 Contact Facility
+
               </button>
 
             </div>
@@ -1178,6 +2860,7 @@ function Storage() {
           </div>
 
         </div>
+
       )}
 
     </div>

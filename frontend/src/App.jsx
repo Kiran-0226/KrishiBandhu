@@ -26,6 +26,7 @@ import Register from './pages/Register';
 import TraderDashboard from './pages/TraderDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
+import AdminStorageRequests from './pages/AdminStorageRequests';
 
 const AuthLoading = () => {
   return (
@@ -242,7 +243,6 @@ function App() {
           }
         />
 
-
         {/* ============================== */}
         {/* FARMER DASHBOARD               */}
         {/* ============================== */}
@@ -259,7 +259,6 @@ function App() {
             </RoleRoute>
           }
         />
-
 
         {/* ============================== */}
         {/* FARMER FEATURES                */}
@@ -339,7 +338,6 @@ function App() {
           }
         />
 
-
         {/* ============================== */}
         {/* PARCHI                         */}
         {/* ============================== */}
@@ -354,7 +352,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
 
         {/* ============================== */}
         {/* STORAGE & WAREHOUSES           */}
@@ -371,7 +368,6 @@ function App() {
           }
         />
 
-
         {/* ============================== */}
         {/* SETTINGS                       */}
         {/* ============================== */}
@@ -386,7 +382,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
 
         {/* ============================== */}
         {/* TRADER DASHBOARD               */}
@@ -405,7 +400,6 @@ function App() {
           }
         />
 
-
         {/* ============================== */}
         {/* ADMIN DASHBOARD                */}
         {/* ============================== */}
@@ -422,7 +416,6 @@ function App() {
             </RoleRoute>
           }
         />
-
 
         {/* ============================== */}
         {/* ADMIN USERS                    */}
@@ -441,6 +434,22 @@ function App() {
           }
         />
 
+        {/* ============================== */}
+        {/* ADMIN STORAGE REQUESTS         */}
+        {/* ============================== */}
+
+        <Route
+          path="/admin/storage-requests"
+          element={
+            <RoleRoute
+              allowedRoles={['admin']}
+            >
+              <MainLayout>
+                <AdminStorageRequests />
+              </MainLayout>
+            </RoleRoute>
+          }
+        />
 
         {/* ============================== */}
         {/* ROOT                           */}
@@ -454,7 +463,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
 
         {/* ============================== */}
         {/* UNKNOWN ROUTES                 */}

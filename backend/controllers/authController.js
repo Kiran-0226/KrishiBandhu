@@ -8,6 +8,12 @@ const User = require('../models/User');
 // ==========================================
 
 const generateToken = (user) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error(
+      'JWT_SECRET is missing from the environment variables.',
+    );
+  }
+
   return jwt.sign(
     {
       id: user._id,
@@ -39,7 +45,8 @@ const register = async (req, res) => {
     if (!name || !email || !phone || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Name, email, phone and password are required.',
+        message:
+          'Name, email, phone and password are required.',
       });
     }
 
@@ -47,7 +54,8 @@ const register = async (req, res) => {
     if (password.length < 6) {
       return res.status(400).json({
         success: false,
-        message: 'Password must contain at least 6 characters.',
+        message:
+          'Password must contain at least 6 characters.',
       });
     }
 
@@ -55,57 +63,75 @@ const register = async (req, res) => {
     if (!['farmer', 'trader'].includes(role)) {
       return res.status(403).json({
         success: false,
-        message: 'Invalid registration role.',
+        message:
+          'Invalid registration role.',
       });
     }
 
     // Check existing email
-    const existingEmail = await User.findOne({
-      email: email.toLowerCase().trim(),
-    });
+    const existingEmail =
+      await User.findOne({
+        email: email
+          .toLowerCase()
+          .trim(),
+      });
 
     if (existingEmail) {
       return res.status(409).json({
         success: false,
-        message: 'An account with this email already exists.',
+        message:
+          'An account with this email already exists.',
       });
     }
 
     // Check existing phone
-    const existingPhone = await User.findOne({
-      phone: phone.trim(),
-    });
+    const existingPhone =
+      await User.findOne({
+        phone: phone.trim(),
+      });
 
     if (existingPhone) {
       return res.status(409).json({
         success: false,
-        message: 'An account with this phone number already exists.',
+        message:
+          'An account with this phone number already exists.',
       });
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword =
+      await bcrypt.hash(
+        password,
+        10,
+      );
 
     // Create user
     const user = await User.create({
       name: name.trim(),
-      email: email.toLowerCase().trim(),
+      email: email
+        .toLowerCase()
+        .trim(),
       phone: phone.trim(),
       password: hashedPassword,
       role,
       location: {
-        city: location.city || '',
-        district: location.district || '',
-        state: location.state || '',
+        city:
+          location.city || '',
+        district:
+          location.district || '',
+        state:
+          location.state || '',
       },
     });
 
     // Generate JWT
-    const token = generateToken(user);
+    const token =
+      generateToken(user);
 
     return res.status(201).json({
       success: true,
-      message: 'Registration successful.',
+      message:
+        'Registration successful.',
       token,
       user: {
         id: user._id,
@@ -119,13 +145,18 @@ const register = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Register Error:', error);
+    console.error(
+      'Register Error:',
+      error,
+    );
 
     return res.status(500).json({
       success: false,
-      message: 'Unable to register user.',
+      message:
+        'Unable to register user.',
       error:
-        process.env.NODE_ENV === 'development'
+        process.env.NODE_ENV ===
+        'development'
           ? error.message
           : undefined,
     });
@@ -138,25 +169,40 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const {
+      email,
+      password,
+    } = req.body;
 
     // Validation
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Email and password are required.',
+        message:
+          'Email and password are required.',
       });
     }
 
+    // Check JWT configuration
+    if (!process.env.JWT_SECRET) {
+      throw new Error(
+        'JWT_SECRET is missing from the environment variables.',
+      );
+    }
+
     // Find user
-    const user = await User.findOne({
-      email: email.toLowerCase().trim(),
-    });
+    const user =
+      await User.findOne({
+        email: email
+          .toLowerCase()
+          .trim(),
+      });
 
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email or password.',
+        message:
+          'Invalid email or password.',
       });
     }
 
@@ -164,29 +210,41 @@ const login = async (req, res) => {
     if (!user.isActive) {
       return res.status(403).json({
         success: false,
-        message: 'Your account has been deactivated.',
+        message:
+          'Your account has been deactivated.',
       });
     }
 
+    // Make sure password exists
+    if (!user.password) {
+      throw new Error(
+        'User account does not contain a password hash.',
+      );
+    }
+
     // Compare password
-    const passwordMatch = await bcrypt.compare(
-      password,
-      user.password,
-    );
+    const passwordMatch =
+      await bcrypt.compare(
+        password,
+        user.password,
+      );
 
     if (!passwordMatch) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email or password.',
+        message:
+          'Invalid email or password.',
       });
     }
 
     // Generate JWT
-    const token = generateToken(user);
+    const token =
+      generateToken(user);
 
     return res.status(200).json({
       success: true,
-      message: 'Login successful.',
+      message:
+        'Login successful.',
       token,
       user: {
         id: user._id,
@@ -200,13 +258,36 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Login Error:', error);
+    console.error(
+      '==========================================',
+    );
+
+    console.error(
+      'LOGIN ERROR:',
+      error,
+    );
+
+    console.error(
+      'ERROR MESSAGE:',
+      error.message,
+    );
+
+    console.error(
+      'ERROR STACK:',
+      error.stack,
+    );
+
+    console.error(
+      '==========================================',
+    );
 
     return res.status(500).json({
       success: false,
-      message: 'Unable to login.',
+      message:
+        'Internal server error.',
       error:
-        process.env.NODE_ENV === 'development'
+        process.env.NODE_ENV ===
+        'development'
           ? error.message
           : undefined,
     });
@@ -217,7 +298,10 @@ const login = async (req, res) => {
 // GET CURRENT LOGGED-IN USER
 // ==========================================
 
-const getMe = async (req, res) => {
+const getMe = async (
+  req,
+  res,
+) => {
   try {
     return res.status(200).json({
       success: true,
@@ -233,11 +317,15 @@ const getMe = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Get Me Error:', error);
+    console.error(
+      'Get Me Error:',
+      error,
+    );
 
     return res.status(500).json({
       success: false,
-      message: 'Unable to fetch user information.',
+      message:
+        'Unable to fetch user information.',
     });
   }
 };
