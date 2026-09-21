@@ -7,6 +7,7 @@ const {
   selectTraderTransport,
   updateBackhaulStatus,
   cancelBackhaul,
+  allocateParchiTransport,
 } = require('../controllers/backhaulController');
 
 const {
@@ -62,6 +63,19 @@ router.post(
   '/:id/select',
   requireRole('farmer'),
   selectTraderTransport,
+);
+
+/* =========================================================
+   ALLOCATE PARCHI QUANTITY TO TRANSPORT
+========================================================= */
+
+router.patch(
+  '/:id/parchi-allocation',
+  requireRole(
+    'farmer',
+    'admin',
+  ),
+  allocateParchiTransport,
 );
 
 /* =========================================================

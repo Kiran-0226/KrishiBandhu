@@ -107,6 +107,26 @@ const parchiSchema = new mongoose.Schema(
     },
 
     /*
+     * ==========================================
+     * BACKHAUL TRANSPORT
+     * ==========================================
+     *
+     * Optional transport associated with this
+     * Parchi.
+     *
+     * The actual transport details remain in the
+     * Backhaul collection.
+     *
+     * This reference simply connects the two
+     * modules.
+     */
+    backhaul: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Backhaul',
+      default: null,
+    },
+
+    /*
      * Parchi lifecycle.
      */
     status: {

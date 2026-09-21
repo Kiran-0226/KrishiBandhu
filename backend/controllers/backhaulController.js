@@ -1,5 +1,6 @@
 const Backhaul = require('../models/Backhaul');
 const Market = require('../models/Market');
+const Parchi = require('../models/Parchi');
 
 /* =========================================================
    HELPERS
@@ -95,6 +96,142 @@ const convertFromKg = (
     default:
       return null;
   }
+};
+
+/* =========================================================
+   PARCHI HELPERS
+========================================================= */
+
+const validateParchiForFarmer = async (
+  parchiId,
+  farmerId,
+) => {
+  if (!parchiId) {
+    return {
+      parchi: null,
+      error: null,
+    };
+  }
+
+  const parchiRecord =
+    await Parchi.findById(parchiId);
+
+  if (!parchiRecord) {
+    return {
+      parchi: null,
+      error: {
+        status: 404,
+        message: 'Parchi not found.',
+      },
+    };
+  }
+
+  if (
+    !parchiRecord.farmer ||
+    String(parchiRecord.farmer) !==
+      String(farmerId)
+  ) {
+    return {
+      parchi: null,
+      error: {
+        status: 403,
+        message:
+          'You can only arrange transport for your own Parchi.',
+      },
+    };
+  }
+
+  if (parchiRecord.backhaul) {
+    return {
+      parchi: null,
+      error: {
+        status: 409,
+        message:
+          'Transport has already been arranged for this Parchi.',
+      },
+    };
+  }
+
+  return {
+    parchi: parchiRecord,
+    error: null,
+  };
+};
+
+const validateParchiQuantity = (
+  parchiRecord,
+  quantity,
+  quantityUnit,
+) => {
+  const requestedKg = convertToKg(
+    quantity,
+    quantityUnit,
+  );
+
+  if (
+    requestedKg === null ||
+    requestedKg <= 0
+  ) {
+    return {
+      quantityKg: null,
+      error:
+        'Please provide a valid transport quantity greater than zero.',
+    };
+  }
+
+  const parchiKg = convertToKg(
+    parchiRecord.quantity,
+    parchiRecord.unit,
+  );
+
+  if (
+    parchiKg === null ||
+    parchiKg <= 0
+  ) {
+    return {
+      quantityKg: null,
+      error:
+        'Unable to determine the quantity recorded on the Parchi.',
+    };
+  }
+
+  if (requestedKg !== parchiKg) {
+    return {
+      quantityKg: null,
+      error:
+        `Transport quantity must match the Parchi quantity of ${parchiRecord.quantity} ${parchiRecord.unit}.`,
+    };
+  }
+
+  return {
+    quantityKg: requestedKg,
+    error: null,
+  };
+};
+
+const validateParchiMarket = (
+  parchiRecord,
+  sourceMarket,
+) => {
+  if (
+    !parchiRecord.market ||
+    !sourceMarket
+  ) {
+    return null;
+  }
+
+  if (
+    String(parchiRecord.market) !==
+    String(sourceMarket)
+  ) {
+    return {
+      status: 400,
+      message:
+        'Source market must match the market recorded on the Parchi.',
+    };
+  }
+
+  return null;
 };
 
 /* =========================================================
@@ -383,6 +520,64 @@ const createBackhaul =
       } = req.body;
 
       /* -----------------------------------------
+         Parchi validation
+      ----------------------------------------- */
+
+      let linkedParchi = null;
+
+      if (parchi) {
+        const result =
+          await validateParchiForFarmer(
+            parchi,
+            req.user._id,
+          );
+
+        if (result.error) {
+          return res
+            .status(result.error.status)
+            .json({
+              success: false,
+              message:
+                result.error.message,
+            });
+        }
+
+        linkedParchi =
+          result.parchi;
+
+        const marketError =
+          validateParchiMarket(
+            linkedParchi,
+            sourceMarket,
+          );
+
+        if (marketError) {
+          return res
+            .status(marketError.status)
+            .json({
+              success: false,
+              message:
+                marketError.message,
+            });
+        }
+
+        const quantityCheck =
+          validateParchiQuantity(
+            linkedParchi,
+            linkedParchi.quantity,
+            linkedParchi.unit,
+          );
+
+        if (quantityCheck.error) {
+          return res.status(400).json({
+            success: false,
+            message:
+              quantityCheck.error,
+          });
+        }
+      }
+
+      /* -----------------------------------------
          Basic validation
       ----------------------------------------- */
 
@@ -656,7 +851,9 @@ const createBackhaul =
           null,
 
         parchi:
-          parchi || null,
+          linkedParchi
+            ? linkedParchi._id
+            : null,
 
         sourceMarket,
 
@@ -741,6 +938,164 @@ const createBackhaul =
           payload,
         );
 
+      /* -----------------------------------------
+         Link Parchi and allocate own transport
+      ----------------------------------------- */
+
+      if (linkedParchi) {
+        const parchiQuantityKg =
+          convertToKg(
+            linkedParchi.quantity,
+            linkedParchi.unit,
+          );
+
+        if (
+          parchiQuantityKg === null ||
+          parchiQuantityKg <= 0
+        ) {
+          await Backhaul.findByIdAndDelete(
+            backhaul._id,
+          );
+
+          return res.status(400).json({
+            success: false,
+            message:
+              'Unable to determine the quantity recorded on the Parchi.',
+          });
+        }
+
+        if (
+          transportType === 'own'
+        ) {
+          const totalCapacityKg =
+            convertToKg(
+              backhaul.capacity,
+              backhaul.capacityUnit,
+            );
+
+          const availableCapacityKg =
+            convertToKg(
+              backhaul.availableCapacity,
+              backhaul.capacityUnit,
+            );
+
+          if (
+            totalCapacityKg === null ||
+            availableCapacityKg === null
+          ) {
+            await Backhaul.findByIdAndDelete(
+              backhaul._id,
+            );
+
+            return res.status(400).json({
+              success: false,
+              message:
+                'Unable to calculate own transport capacity.',
+            });
+          }
+
+          if (
+            parchiQuantityKg >
+            availableCapacityKg
+          ) {
+            await Backhaul.findByIdAndDelete(
+              backhaul._id,
+            );
+
+            return res.status(409).json({
+              success: false,
+              message:
+                `Parchi quantity exceeds available transport capacity. Available: ${availableCapacityKg} kg.`,
+              availableCapacityKg:
+                availableCapacityKg,
+            });
+          }
+
+          let farmerTransportCost =
+            Number(
+              backhaul.estimatedCost,
+            );
+
+          if (
+            backhaul.costUnit ===
+            'per_kg'
+          ) {
+            farmerTransportCost =
+              parchiQuantityKg *
+              Number(
+                backhaul.estimatedCost,
+              );
+          } else if (
+            backhaul.costUnit ===
+            'per_quintal'
+          ) {
+            farmerTransportCost =
+              (parchiQuantityKg /
+                100) *
+              Number(
+                backhaul.estimatedCost,
+              );
+          } else if (
+            backhaul.costUnit ===
+            'per_ton'
+          ) {
+            farmerTransportCost =
+              (parchiQuantityKg /
+                1000) *
+              Number(
+                backhaul.estimatedCost,
+              );
+          }
+
+          farmerTransportCost =
+            Math.round(
+              farmerTransportCost * 100,
+            ) / 100;
+
+          const remainingKg =
+            availableCapacityKg -
+            parchiQuantityKg;
+
+          const remainingCapacity =
+            convertFromKg(
+              remainingKg,
+              backhaul.capacityUnit,
+            );
+
+          backhaul.allocatedQuantity =
+            parchiQuantityKg;
+
+          backhaul.allocatedQuantityUnit =
+            'kg';
+
+          backhaul.farmerTransportCost =
+            farmerTransportCost;
+
+          backhaul.availableCapacity =
+            remainingCapacity;
+
+          backhaul.status =
+            'selected';
+
+          backhaul.selectedAt =
+            new Date();
+        }
+
+        if (
+          linkedParchi.saleListing &&
+          !backhaul.saleListing
+        ) {
+          backhaul.saleListing =
+            linkedParchi.saleListing;
+        }
+
+        linkedParchi.backhaul =
+          backhaul._id;
+
+        await backhaul.save();
+        await linkedParchi.save();
+      }
+
       const populated =
         await populateBackhaul(
           Backhaul.findById(
@@ -823,7 +1178,31 @@ const selectTraderTransport =
         quantity,
         quantityUnit =
           'kg',
+        parchi,
       } = req.body;
+
+      let linkedParchi = null;
+
+      if (parchi) {
+        const result =
+          await validateParchiForFarmer(
+            parchi,
+            req.user._id,
+          );
+
+        if (result.error) {
+          return res
+            .status(result.error.status)
+            .json({
+              success: false,
+              message:
+                result.error.message,
+            });
+        }
+
+        linkedParchi =
+          result.parchi;
+      }
 
       const requestedKg =
         convertToKg(
@@ -884,6 +1263,39 @@ const selectTraderTransport =
             message:
               'This transport is no longer available.',
           });
+      }
+
+      if (linkedParchi) {
+        const marketError =
+          validateParchiMarket(
+            linkedParchi,
+            backhaul.sourceMarket,
+          );
+
+        if (marketError) {
+          return res
+            .status(marketError.status)
+            .json({
+              success: false,
+              message:
+                marketError.message,
+            });
+        }
+
+        const quantityCheck =
+          validateParchiQuantity(
+            linkedParchi,
+            quantity,
+            quantityUnit,
+          );
+
+        if (quantityCheck.error) {
+          return res.status(400).json({
+            success: false,
+            message:
+              quantityCheck.error,
+          });
+        }
       }
 
       const availableKg =
@@ -1023,7 +1435,26 @@ const selectTraderTransport =
       backhaul.selectedAt =
         new Date();
 
+      if (linkedParchi) {
+        backhaul.parchi =
+          linkedParchi._id;
+
+        if (
+          linkedParchi.saleListing
+        ) {
+          backhaul.saleListing =
+            linkedParchi.saleListing;
+        }
+      }
+
       await backhaul.save();
+
+      if (linkedParchi) {
+        linkedParchi.backhaul =
+          backhaul._id;
+
+        await linkedParchi.save();
+      }
 
       const populated =
         await populateBackhaul(
@@ -1338,11 +1769,384 @@ const cancelBackhaul =
     }
   };
 
+  /* =========================================================
+   ALLOCATE PARCHI QUANTITY TO EXISTING TRANSPORT
+========================================================= */
+
+const allocateParchiTransport =
+  async (
+    req,
+    res,
+  ) => {
+    try {
+      const backhaul =
+        await Backhaul.findById(
+          req.params.id,
+        );
+
+      if (!backhaul) {
+        return res
+          .status(404)
+          .json({
+            success: false,
+            message:
+              'Transport record not found.',
+          });
+      }
+
+      if (!backhaul.parchi) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message:
+              'This transport is not linked to a Parchi.',
+          });
+      }
+
+      const parchiRecord =
+        await Parchi.findById(
+          backhaul.parchi,
+        );
+
+      if (!parchiRecord) {
+        return res
+          .status(404)
+          .json({
+            success: false,
+            message:
+              'Linked Parchi not found.',
+          });
+      }
+
+      /* -----------------------------------------
+         Ownership
+      ----------------------------------------- */
+
+      const isAdmin =
+        req.user.role ===
+        'admin';
+
+      const isParchiFarmer =
+        parchiRecord.farmer &&
+        String(
+          parchiRecord.farmer,
+        ) ===
+          String(
+            req.user._id,
+          );
+
+      if (
+        !isAdmin &&
+        !isParchiFarmer
+      ) {
+        return res
+          .status(403)
+          .json({
+            success: false,
+            message:
+              'You are not allowed to allocate this Parchi to transport.',
+          });
+      }
+
+      /* -----------------------------------------
+         Transport type
+      ----------------------------------------- */
+
+      if (
+        backhaul.transportType !==
+        'own'
+      ) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message:
+              'This allocation operation is only for own transport.',
+          });
+      }
+
+      /* -----------------------------------------
+         Prevent duplicate allocation
+      ----------------------------------------- */
+
+      const parchiQuantityKg =
+        convertToKg(
+          parchiRecord.quantity,
+          parchiRecord.unit,
+        );
+
+      if (
+        parchiQuantityKg ===
+          null ||
+        parchiQuantityKg <= 0
+      ) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message:
+              'Unable to determine the quantity recorded on the Parchi.',
+          });
+      }
+
+      /* -----------------------------------------
+         Capacity calculation
+      ----------------------------------------- */
+
+      const availableCapacityKg =
+        convertToKg(
+          backhaul.availableCapacity,
+          backhaul.capacityUnit,
+        );
+
+      const totalCapacityKg =
+        convertToKg(
+          backhaul.capacity,
+          backhaul.capacityUnit,
+        );
+
+      if (
+        availableCapacityKg ===
+          null ||
+        totalCapacityKg ===
+          null
+      ) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message:
+              'Unable to calculate transport capacity.',
+          });
+      }
+
+      if (
+        parchiQuantityKg >
+        availableCapacityKg
+      ) {
+        return res
+          .status(409)
+          .json({
+            success: false,
+            message:
+              `Parchi quantity exceeds available transport capacity. Available: ${availableCapacityKg} kg.`,
+            availableCapacityKg:
+              availableCapacityKg,
+            requiredQuantityKg:
+              parchiQuantityKg,
+          });
+      }
+
+      /* -----------------------------------------
+         Transport cost calculation
+      ----------------------------------------- */
+
+      let farmerTransportCost =
+        Number(
+          backhaul.estimatedCost,
+        );
+
+      if (
+        backhaul.costUnit ===
+        'per_kg'
+      ) {
+        farmerTransportCost =
+          parchiQuantityKg *
+          Number(
+            backhaul.estimatedCost,
+          );
+      } else if (
+        backhaul.costUnit ===
+        'per_quintal'
+      ) {
+        farmerTransportCost =
+          (parchiQuantityKg /
+            100) *
+          Number(
+            backhaul.estimatedCost,
+          );
+      } else if (
+        backhaul.costUnit ===
+        'per_ton'
+      ) {
+        farmerTransportCost =
+          (parchiQuantityKg /
+            1000) *
+          Number(
+            backhaul.estimatedCost,
+          );
+      } else {
+        /*
+          For a total transport cost,
+          the complete Parchi quantity is
+          allocated to this own vehicle.
+
+          Therefore the farmer is responsible
+          for the configured total transport cost.
+        */
+
+        farmerTransportCost =
+          Number(
+            backhaul.estimatedCost,
+          );
+      }
+
+      farmerTransportCost =
+        Math.round(
+          farmerTransportCost *
+            100,
+        ) / 100;
+
+      /* -----------------------------------------
+         Remaining capacity
+      ----------------------------------------- */
+
+      const remainingKg =
+        availableCapacityKg -
+        parchiQuantityKg;
+
+      const remainingCapacity =
+        convertFromKg(
+          remainingKg,
+          backhaul.capacityUnit,
+        );
+
+      /* -----------------------------------------
+         Update Backhaul
+      ----------------------------------------- */
+
+      backhaul.allocatedQuantity =
+        parchiQuantityKg;
+
+      backhaul.allocatedQuantityUnit =
+        'kg';
+
+      backhaul.farmerTransportCost =
+        farmerTransportCost;
+
+      backhaul.availableCapacity =
+        remainingCapacity;
+
+      backhaul.status =
+        'selected';
+
+      backhaul.selectedAt =
+        backhaul.selectedAt ||
+        new Date();
+
+      /* -----------------------------------------
+         Make sure farmer is linked
+      ----------------------------------------- */
+
+      if (
+        !backhaul.farmer &&
+        parchiRecord.farmer
+      ) {
+        backhaul.farmer =
+          parchiRecord.farmer;
+      }
+
+      /* -----------------------------------------
+         Make sure sale listing is linked
+      ----------------------------------------- */
+
+      if (
+        !backhaul.saleListing &&
+        parchiRecord.saleListing
+      ) {
+        backhaul.saleListing =
+          parchiRecord.saleListing;
+      }
+
+      await backhaul.save();
+
+      /* -----------------------------------------
+         Make sure Parchi points to Backhaul
+      ----------------------------------------- */
+
+      if (
+        !parchiRecord.backhaul ||
+        String(
+          parchiRecord.backhaul,
+        ) !==
+          String(
+            backhaul._id,
+          )
+      ) {
+        parchiRecord.backhaul =
+          backhaul._id;
+
+        await parchiRecord.save();
+      }
+
+      /* -----------------------------------------
+         Return populated result
+      ----------------------------------------- */
+
+      const populated =
+        await populateBackhaul(
+          Backhaul.findById(
+            backhaul._id,
+          ),
+        );
+
+      return res
+        .status(200)
+        .json({
+          success: true,
+
+          message:
+            'Parchi quantity allocated to transport successfully.',
+
+          allocation: {
+            parchiQuantity:
+              parchiRecord.quantity,
+
+            parchiQuantityUnit:
+              parchiRecord.unit,
+
+            allocatedQuantity:
+              parchiQuantityKg,
+
+            allocatedQuantityUnit:
+              'kg',
+
+            remainingCapacity:
+              remainingCapacity,
+
+            remainingCapacityUnit:
+              backhaul.capacityUnit,
+
+            farmerTransportCost:
+              farmerTransportCost,
+          },
+
+          data:
+            populated,
+        });
+    } catch (error) {
+      console.error(
+        'Allocate Parchi transport error:',
+        error,
+      );
+
+      return res
+        .status(500)
+        .json({
+          success: false,
+          message:
+            'Failed to allocate Parchi quantity to transport.',
+        });
+    }
+  };
+
 module.exports = {
   getAvailableBackhaul,
   getMyBackhaul,
   createBackhaul,
   selectTraderTransport,
+  allocateParchiTransport,
   updateBackhaulStatus,
   cancelBackhaul,
 };
