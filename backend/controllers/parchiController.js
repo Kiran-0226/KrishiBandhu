@@ -377,6 +377,140 @@ const getParchiById = async (
 
 /*
  * ==========================================
+ * Get Parchi Transport Information
+ * ==========================================
+ *
+ * Returns the transport requirements for a
+ * Parchi so the Backhaul workflow can use the
+ * Parchi as its source of crop/sale details.
+ *
+ * GET
+ * /api/parchi/:id/transport
+ */
+
+const getParchiTransport = async (
+  req,
+  res,
+) => {
+  try {
+    const parchi =
+      await Parchi.findById(
+        req.params.id,
+      )
+        .populate(
+          'farmer',
+          'name email phone location',
+        )
+        .populate(
+          'trader',
+          'name email phone location',
+        )
+        .populate(
+          'crop',
+          'name variety area areaUnit status',
+        )
+        .populate(
+          'market',
+          'name district state type location',
+        )
+        .populate(
+          'saleListing',
+          'quantity unit askingPrice status',
+        )
+        .populate(
+          'backhaul',
+        );
+
+    if (!parchi) {
+      return res.status(404).json({
+        success: false,
+        message: 'Parchi not found.',
+      });
+    }
+
+    const isAdmin =
+      req.user.role === 'admin';
+
+    const isFarmer =
+      req.user.role === 'farmer' &&
+      parchi.farmer?._id?.toString() ===
+        req.user._id.toString();
+
+    const isTrader =
+      req.user.role === 'trader' &&
+      parchi.trader?._id?.toString() ===
+        req.user._id.toString();
+
+    if (
+      !isAdmin &&
+      !isFarmer &&
+      !isTrader
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          'You are not authorized to view transport information for this Parchi.',
+      });
+    }
+
+    const existingBackhaul =
+      parchi.backhaul || null;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        parchiId: parchi._id,
+
+        parchiNumber:
+          parchi.parchiNumber,
+
+        crop:
+          parchi.crop || null,
+
+        quantity:
+          parchi.quantity,
+
+        unit:
+          parchi.unit,
+
+        farmer:
+          parchi.farmer || null,
+
+        trader:
+          parchi.trader || null,
+
+        saleListing:
+          parchi.saleListing || null,
+
+        sourceMarket:
+          parchi.market || null,
+
+        destinationMarket:
+          null,
+
+        backhaul:
+          existingBackhaul,
+
+        transportArranged:
+          Boolean(existingBackhaul),
+      },
+    });
+  } catch (error) {
+    console.error(
+      'Get Parchi Transport Error:',
+      error,
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'Failed to fetch Parchi transport information.',
+    });
+  }
+};
+
+/*
+ * ==========================================
  * Update Farmer Bank Details
  * ==========================================
  */
@@ -1442,6 +1576,7 @@ module.exports = {
   createParchi,
   getParchis,
   getParchiById,
+  getParchiTransport,
   updateParchiBankDetails,
   submitParchiTransfer,
   uploadParchiReceipt,

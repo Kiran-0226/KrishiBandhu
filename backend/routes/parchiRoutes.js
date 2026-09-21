@@ -4,6 +4,7 @@ const {
   createParchi,
   getParchis,
   getParchiById,
+  getParchiTransport,
   updateParchiBankDetails,
   submitParchiTransfer,
   uploadParchiReceipt,
@@ -70,6 +71,23 @@ router.post(
 router.get(
   '/',
   getParchis,
+);
+
+/*
+ * ==========================================
+ * Get Parchi Transport Information
+ * ==========================================
+ *
+ * Used by the Backhaul workflow to obtain
+ * transport requirements from a Parchi.
+ *
+ * GET
+ * /api/parchi/:id/transport
+ */
+
+router.get(
+  '/:id/transport',
+  getParchiTransport,
 );
 
 /*
